@@ -1,9 +1,35 @@
-'use client'
+'use client';
 
 import { useState } from 'react'
-import StatusBadge from '@/components/StatusBadge'
+import { ChevronDown, Filter, Search } from 'lucide-react'
 
-const allMitraData = [
+type Mitra = {
+  no: number;
+  nama: string;
+  email: string;
+  perjalanan: number;
+  rating: number;
+  status: string;
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const getStatusColor = (status: string) => {
+    if (status === 'Terverifikasi') {
+      return 'bg-green-100 text-green-800 border-green-200';
+    } else if (status === 'Terblokir') {
+      return 'bg-red-100 text-red-800 border-red-200';
+    }
+    return 'bg-gray-100 text-gray-800 border-gray-200';
+  };
+
+  return (
+    <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(status)}`}>
+      {status}
+    </span>
+  );
+};
+
+const allMitraData: Mitra[] = [
   { no: 1, nama: 'Christine Brooks', email: 'ChristineBrooks@gmail.com', perjalanan: 0, rating: 0, status: 'Terblokir' },
   { no: 2, nama: 'Rosie Pearson', email: 'RosiePearson@gmail.com', perjalanan: 32, rating: 4.8, status: 'Terverifikasi' },
   { no: 3, nama: 'Darrell Caldwell', email: 'DarrellCaldwell@gmail.com', perjalanan: 32, rating: 4.8, status: 'Terverifikasi' },
@@ -13,120 +39,194 @@ const allMitraData = [
   { no: 7, nama: 'Maggie Sullivan', email: 'MaggieSullivan@gmail.com', perjalanan: 32, rating: 4.8, status: 'Terverifikasi' },
   { no: 8, nama: 'Rosie Todd', email: 'RosieTodd@gmail.com', perjalanan: 0, rating: 0, status: 'Terblokir' },
   { no: 9, nama: 'Dollie Hines', email: 'DollieHines@gmail.com', perjalanan: 32, rating: 4.8, status: 'Terverifikasi' }
-]
+];
 
 export default function MitraSemuaPage() {
-  const [statusFilter, setStatusFilter] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedMitra, setSelectedMitra] = useState<null | typeof allMitraData[0]>(null)
+  const [statusFilter, setStatusFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMitra, setSelectedMitra] = useState<Mitra | null>(null);
 
   const filteredData = allMitraData.filter((mitra) => {
-    const matchStatus = statusFilter ? mitra.status === statusFilter : true
-    const matchSearch = mitra.nama.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchStatus && matchSearch
-  })
+    const matchStatus = statusFilter ? mitra.status === statusFilter : true;
+    const matchSearch = mitra.nama.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="text-2xl font-semibold text-gray-800">Data Semua Mitra</div>
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 text-sm border rounded-md bg-white border-gray-300 text-gray-700 shadow-sm"
-          >
-            <option value="">Status</option>
-            <option value="Terverifikasi">Terverifikasi</option>
-            <option value="Terblokir">Terblokir</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Cari mitra..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 text-sm border rounded-md bg-white border-gray-300 w-64 shadow-sm"
-          />
-          <button
-            onClick={() => {
-              setStatusFilter('')
-              setSearchQuery('')
-              setSelectedMitra(null)
-            }}
-            className="px-4 py-2 text-sm text-rose-600 border rounded-md border-rose-300 bg-white hover:bg-rose-50 shadow-sm"
-          >
-            Reset Filter
-          </button>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg bg-white shadow border border-gray-200">
-        <table className="w-full text-sm text-gray-700">
-          <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-            <tr>
-              <th className="px-4 py-3 text-left">No</th>
-              <th className="px-4 py-3 text-left">Nama Mitra</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-center">Total Perjalanan</th>
-              <th className="px-4 py-3 text-center">Rating</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="px-4 py-3 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((mitra, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50 transition duration-200">
-                <td className="px-4 py-3">{mitra.no}</td>
-                <td className="px-4 py-3">{mitra.nama}</td>
-                <td className="px-4 py-3">{mitra.email}</td>
-                <td className="px-4 py-3 text-center">{mitra.perjalanan}</td>
-                <td className="px-4 py-3 text-center">{mitra.rating}</td>
-                <td className="px-4 py-3 text-center">
-                  <StatusBadge status={mitra.status} />
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <button
-                    onClick={() => setSelectedMitra(mitra)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Detail
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredData.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-gray-400">
-                  Tidak ada data mitra yang ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="text-sm text-gray-500 mt-4">
-        Menampilkan data 1 hingga {filteredData.length} dari {allMitraData.length}
-      </div>
-
-      {selectedMitra && (
-        <div className="mt-6 bg-white shadow rounded-lg p-6 border border-gray-200">
-          <div className="text-xl font-semibold text-gray-800 mb-4">Detail Mitra</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div><strong>Nama:</strong> {selectedMitra.nama}</div>
-            <div><strong>Email:</strong> {selectedMitra.email}</div>
-            <div><strong>Total Perjalanan:</strong> {selectedMitra.perjalanan}</div>
-            <div><strong>Rating:</strong> {selectedMitra.rating}</div>
-            <div><strong>Status:</strong> <StatusBadge status={selectedMitra.status} /></div>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-6">Data Semua Mitra</h1>
+          
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Status</option>
+                <option value="Terverifikasi">Terverifikasi</option>
+                <option value="Terblokir">Terblokir</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
+            
+            <button className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 border border-red-300 rounded-md bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <Filter className="h-4 w-4" />
+              Reset Filter
+            </button>
+            
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Cari mitra..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
           </div>
-          <button
-            onClick={() => setSelectedMitra(null)}
-            className="mt-4 text-sm text-gray-500 hover:text-red-500 underline"
-          >
-            Tutup Detail
-          </button>
         </div>
-      )}
+
+        {/* Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    No
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nama Mitra
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Perjalanan
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rating
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredData.map((mitra, index) => (
+                  <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {mitra.no}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {mitra.nama}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {mitra.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {mitra.perjalanan}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {mitra.rating}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <StatusBadge status={mitra.status} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <button
+                        onClick={() => setSelectedMitra(mitra)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline focus:outline-none"
+                      >
+                        Detail
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {filteredData.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-sm">Tidak ada data mitra yang ditemukan.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer info */}
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+          <div>
+            Menampilkan data 1 hingga {filteredData.length} dari {allMitraData.length}
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="p-1 rounded hover:bg-gray-100 disabled:opacity-50" disabled>
+              <ChevronDown className="h-4 w-4 rotate-90" />
+            </button>
+            <button className="p-1 rounded hover:bg-gray-100">
+              <ChevronDown className="h-4 w-4 -rotate-90" />
+            </button>
+          </div>
+        </div>
+
+        {/* Detail Modal/Card */}
+        {selectedMitra && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Detail Mitra</h3>
+                <button
+                  onClick={() => setSelectedMitra(null)}
+                  className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nama:</span>
+                  <span className="font-medium text-gray-900">{selectedMitra.nama}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Email:</span>
+                  <span className="font-medium text-gray-900">{selectedMitra.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Perjalanan:</span>
+                  <span className="font-medium text-gray-900">{selectedMitra.perjalanan}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Rating:</span>
+                  <span className="font-medium text-gray-900">{selectedMitra.rating}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Status:</span>
+                  <StatusBadge status={selectedMitra.status} />
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setSelectedMitra(null)}
+                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:underline"
+                >
+                  Tutup Detail
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }

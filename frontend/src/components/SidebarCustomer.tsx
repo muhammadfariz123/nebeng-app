@@ -8,14 +8,6 @@ import { Home, PackageSearch, CreditCard, Bell, User, LogOut, History, Send, Sta
 
 const menu = [
   { href: "/customer", icon: Home, label: "Beranda" },
-  { href: "/customer/book-ride", icon: PackageSearch, label: "Pesan Kursi" },
-  { href: "/customer/send-package", icon: Send, label: "Kirim Barang" },
-  { href: "/customer/bookings", icon: History, label: "Riwayat Pemesanan" },
-  { href: "/customer/transactions", icon: CreditCard, label: "Transaksi" },
-  { href: "/customer/wallet", icon: CreditCard, label: "Dompet Kredit" },
-  { href: "/customer/ratings", icon: Star, label: "Rating & Ulasan" },
-  { href: "/customer/notifications", icon: Bell, label: "Notifikasi" },
-  { href: "/customer/profile", icon: User, label: "Profil Saya" },
 ]
 
 export default function SidebarCustomer() {

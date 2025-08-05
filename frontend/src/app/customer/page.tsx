@@ -1,9 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { RiMotorbikeFill, RiCarFill, RiBox3Fill, RiBusFill, RiMapPin2Fill, RiNotification3Line } from 'react-icons/ri'
+import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
-import { CreditCardIcon, MapPinIcon, ClockIcon } from 'lucide-react'
 
 interface Slider {
   id: number
@@ -23,101 +24,130 @@ interface Customer {
 }
 
 export default function CustomerHomePage() {
+  const router = useRouter()
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [sliders, setSliders] = useState<Slider[]>([])
   const [destinations, setDestinations] = useState<Destination[]>([])
 
   useEffect(() => {
-    // Simulasi API
     setCustomer({
-      full_name: 'Putri Ayu',
-      credit_amount: 150_000,
+      full_name: 'Nadya Amalya',
+      credit_amount: 0,
     })
 
     setSliders([
-      { id: 1, slider_img: '/slider1.jpg', is_active: true },
-      { id: 2, slider_img: '/slider2.jpg', is_active: true },
+      { id: 1, slider_img: '/slider1.png', is_active: true },
     ])
 
     setDestinations([
       {
         id: 1,
-        title: 'Bandara Soekarno-Hatta',
-        destination_img: '/destinations/soetta.jpg',
+        title: 'Jakarta',
+        destination_img: '/destinations/jakarta.jpg',
       },
       {
         id: 2,
-        title: 'Terminal Pulogebang',
-        destination_img: '/destinations/pulogebang.jpg',
+        title: 'Bandung',
+        destination_img: '/destinations/bandung.jpg',
       },
     ])
   }, [])
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">
-        Selamat datang, {customer?.full_name ?? 'Customer'}!
-      </h1>
 
-      {/* Kartu Saldo */}
-      <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md">
-        <CardContent className="flex items-center justify-between p-5">
+      {/* Header Welcome */}
+      <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6">
+        <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-sm font-medium">Saldo Kredit</h2>
-            <p className="text-2xl font-semibold">
-              Rp {customer?.credit_amount.toLocaleString('id-ID')}
+            <p className="text-sm">Selamat Siang,</p>
+            <h1 className="text-lg font-bold">{customer?.full_name ?? 'Customer'}</h1>
+          </div>
+          <RiNotification3Line className="w-6 h-6" />
+        </div>
+
+        {/* Poin Box */}
+        <div className="absolute left-6 right-6 top-28">
+          <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
+            <div className="text-gray-800 font-medium">Poin saya</div>
+            <div className="text-red-500 font-bold text-xl">{customer?.credit_amount}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 pt-20 space-y-6 pb-20">
+
+        {/* Kategori Layanan */}
+        <div className="flex justify-between items-center text-center">
+          {/* Motor */}
+          <button
+            onClick={() => router.push('/customer/motor')}
+            className="flex flex-col items-center gap-1"
+          >
+            <div className="bg-green-100 p-3 rounded-full">
+              <RiMotorbikeFill className="text-green-600 w-6 h-6" />
+            </div>
+            <p className="text-xs mt-1">Motor</p>
+          </button>
+
+          <div className="flex flex-col items-center gap-1">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <RiCarFill className="text-blue-600 w-6 h-6" />
+            </div>
+            <p className="text-xs mt-1">Mobil</p>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <div className="bg-yellow-100 p-3 rounded-full">
+              <RiBox3Fill className="text-yellow-600 w-6 h-6" />
+            </div>
+            <p className="text-xs mt-1">Barang</p>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <div className="bg-rose-100 p-3 rounded-full">
+              <RiBusFill className="text-rose-600 w-6 h-6" />
+            </div>
+            <p className="text-xs text-center mt-1 leading-tight">
+              Barang<br />(Transportasi Umum)
             </p>
           </div>
-          <CreditCardIcon className="w-10 h-10" />
-        </CardContent>
-      </Card>
-
-      {/* Slider */}
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Promo & Info</h2>
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {sliders.map(slider => (
-            <Image
-              key={slider.id}
-              src={slider.slider_img}
-              alt="Slider"
-              width={300}
-              height={150}
-              className="rounded-lg object-cover"
-            />
-          ))}
         </div>
-      </div>
 
-      {/* Destinasi Populer */}
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Destinasi Populer</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {destinations.map(dest => (
-            <Card key={dest.id} className="overflow-hidden shadow-sm">
-              <Image
-                src={dest.destination_img}
-                alt={dest.title}
-                width={400}
-                height={200}
-                className="w-full h-32 object-cover"
-              />
-              <CardContent className="p-3 flex items-center gap-2">
-                <MapPinIcon className="w-5 h-5 text-primary" />
-                <p className="text-sm font-medium">{dest.title}</p>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Slider */}
+        <div className="space-y-2">
+          <Image
+            src={sliders[0]?.slider_img || '/slider1.png'}
+            alt="Promo"
+            width={600}
+            height={200}
+            className="rounded-xl w-full object-cover"
+          />
         </div>
-      </div>
 
-      {/* Aktivitas Terakhir */}
-      <div>
-        <h2 className="text-lg font-semibold mb-2">Aktivitas Terakhir</h2>
-        <div className="bg-white rounded-lg shadow-sm p-4 text-gray-600 flex items-center gap-2">
-          <ClockIcon className="w-5 h-5 text-gray-400" />
-          <p className="text-sm">Belum ada transaksi terbaru.</p>
+        {/* Destinasi Populer */}
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold">Tujuan Populer</h2>
+          <p className="text-sm text-gray-500">Berikut adalah kota-kota yang populer!</p>
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {destinations.map(dest => (
+              <Card key={dest.id} className="overflow-hidden rounded-xl shadow">
+                <Image
+                  src={dest.destination_img}
+                  alt={dest.title}
+                  width={400}
+                  height={200}
+                  className="w-full h-28 object-cover"
+                />
+                <CardContent className="p-3 flex items-center gap-2">
+                  <RiMapPin2Fill className="w-5 h-5 text-primary" />
+                  <p className="text-sm font-medium">{dest.title}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+
       </div>
     </div>
   )
