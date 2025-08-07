@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  RiMotorbikeFill,
-  RiCarFill,
-  RiBox3Fill,
-  RiBusFill,
   RiMapPin2Fill,
   RiNotification3Line,
 } from "react-icons/ri";
@@ -58,10 +54,45 @@ export default function CustomerHomePage() {
     ]);
   }, []);
 
+  const layanan = [
+    {
+      title: "Motor",
+      img: "/icons/motor.svg",
+      to: "/customer/motor",
+      bg: "bg-green-100",
+      imgClass: "w-8 h-12",
+    },
+    {
+      title: "Mobil",
+      img: "/icons/mobil.svg",
+      to: "/customer/mobil",
+      bg: "bg-blue-100",
+      imgClass: "w-12 h-12",
+    },
+    {
+      title: "Barang",
+      img: "/icons/barang.svg",
+      to: "/customer/barang",
+      bg: "bg-yellow-100",
+      imgClass: "w-12 h-12",
+    },
+    {
+      title: (
+        <>
+          Barang <br /> (Transportasi Umum)
+        </>
+      ),
+      img: "/icons/barang-umum.svg",
+      to: "/customer/barang-umum",
+      bg: "bg-red-100",
+      imgClass: "w-12 h-8",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header Welcome */}
-      <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6">
+      <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6 shadow-md">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm">Selamat Siang,</p>
@@ -84,53 +115,34 @@ export default function CustomerHomePage() {
       </div>
 
       <div className="px-6 pt-20 space-y-6 pb-20">
-        {/* Kategori Layanan */}
-        <div className="grid grid-cols-4 gap-4 text-center">
-          {/* Motor */}
-          <button
-            onClick={() => router.push("/customer/motor")}
-            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
-          >
-            <div className="bg-green-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
-              <RiMotorbikeFill className="text-green-600 w-8 h-8" />
-            </div>
-            <p className="text-sm font-medium">Motor</p>
-          </button>
-
-          {/* Mobil */}
-          <button
-            onClick={() => router.push("/customer/mobil")}
-            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
-          >
-            <div className="bg-blue-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
-              <RiCarFill className="text-blue-600 w-8 h-8" />
-            </div>
-            <p className="text-sm font-medium">Mobil</p>
-          </button>
-
-          {/* Barang */}
-          <button
-            onClick={() => router.push("/customer/barang")}
-            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
-          >
-            <div className="bg-yellow-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
-              <RiBox3Fill className="text-yellow-600 w-8 h-8" />
-            </div>
-            <p className="text-sm font-medium">Barang</p>
-          </button>
-
-          {/* Barang (Transportasi Umum) */}
-          <button
-            onClick={() => router.push("/customer/barang-umum")}
-            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
-          >
-            <div className="bg-rose-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
-              <RiBusFill className="text-rose-600 w-8 h-8" />
-            </div>
-            <p className="text-sm font-medium leading-tight text-center">
-              Barang <br /> (Transportasi Umum)
-            </p>
-          </button>
+        {/* Kategori Layanan dengan Gambar (Gaya Buat Tebengan) */}
+        <div className="text-center">
+          <h3 className="text-xl font-semibold mb-2">Layanan</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            {layanan.map((item, i) => (
+              <button
+                key={i}
+                onClick={() => router.push(item.to)}
+                className="p-4 rounded-lg flex flex-col items-center hover:scale-105 transition-transform cursor-pointer"
+              >
+                <div
+                  className={`rounded-full ${item.bg} flex items-center justify-center mb-5`}
+                  style={{ width: 80, height: 80 }}
+                >
+                  <Image
+                    src={item.img}
+                    alt="icon"
+                    width={48}
+                    height={48}
+                    className={`object-contain ${item.imgClass}`}
+                  />
+                </div>
+                <span className="text-sm font-medium leading-tight text-center">
+                  {item.title}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Slider */}
@@ -140,7 +152,7 @@ export default function CustomerHomePage() {
             alt="Promo"
             width={600}
             height={200}
-            className="rounded-xl w-full object-cover"
+            className="rounded-xl w-full object-cover shadow-md"
           />
         </div>
 
@@ -152,7 +164,10 @@ export default function CustomerHomePage() {
           </p>
           <div className="grid grid-cols-2 gap-4 mt-2">
             {destinations.map((dest) => (
-              <Card key={dest.id} className="overflow-hidden rounded-xl shadow">
+              <Card
+                key={dest.id}
+                className="overflow-hidden rounded-xl shadow-md transition-transform hover:scale-[1.02]"
+              >
                 <Image
                   src={dest.destination_img}
                   alt={dest.title}
