@@ -106,11 +106,13 @@ export default function DetailPembayaranPage() {
       </div>
 
       {/* Tombol Bayar */}
-      <Link href="/customer/motor/pembayaran-berlangsung">
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
-          Bayar Dengan {selectedBank.name}
-        </button>
-      </Link>
+      <div className="px-4 py-6">
+        <Link href="/customer/motor/pembayaran-berlangsung">
+          <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+            Bayar Dengan {selectedBank.name}
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

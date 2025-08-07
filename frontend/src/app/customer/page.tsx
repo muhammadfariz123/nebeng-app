@@ -86,7 +86,7 @@ export default function CustomerHomePage() {
       <div className="px-6 pt-20 space-y-6 pb-20">
         {/* Kategori Layanan */}
         <div className="grid grid-cols-4 gap-4 text-center">
-          {/* Item */}
+          {/* Motor */}
           <button
             onClick={() => router.push("/customer/motor")}
             className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
@@ -97,6 +97,7 @@ export default function CustomerHomePage() {
             <p className="text-sm font-medium">Motor</p>
           </button>
 
+          {/* Mobil */}
           <button
             onClick={() => router.push("/customer/mobil")}
             className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
@@ -107,21 +108,29 @@ export default function CustomerHomePage() {
             <p className="text-sm font-medium">Mobil</p>
           </button>
 
-          <div className="flex flex-col items-center gap-2">
+          {/* Barang */}
+          <button
+            onClick={() => router.push("/customer/barang")}
+            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
+          >
             <div className="bg-yellow-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
               <RiBox3Fill className="text-yellow-600 w-8 h-8" />
             </div>
             <p className="text-sm font-medium">Barang</p>
-          </div>
+          </button>
 
-          <div className="flex flex-col items-center gap-2">
+          {/* Barang (Transportasi Umum) */}
+          <button
+            onClick={() => router.push("/customer/barang-umum")}
+            className="flex flex-col items-center gap-2 hover:scale-105 transition-all duration-200"
+          >
             <div className="bg-rose-100 backdrop-blur-md bg-opacity-60 p-4 rounded-2xl shadow-lg border border-white/30">
               <RiBusFill className="text-rose-600 w-8 h-8" />
             </div>
             <p className="text-sm font-medium leading-tight text-center">
               Barang <br /> (Transportasi Umum)
             </p>
-          </div>
+          </button>
         </div>
 
         {/* Slider */}

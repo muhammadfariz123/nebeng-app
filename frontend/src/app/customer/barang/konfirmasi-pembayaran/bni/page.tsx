@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function DetailPembayaranMobilPage() {
+export default function DetailPembayaranBarangPage() {
   const { bank } = useParams();
 
   const bankInfo: Record<string, { name: string; image: string }> = {
@@ -24,7 +24,7 @@ export default function DetailPembayaranMobilPage() {
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b px-4 py-4 flex items-center">
-        <Link href="/customer/mobil/konfirmasi-pembayaran">
+        <Link href="/customer/barang/konfirmasi-pembayaran">
           <ArrowLeft className="w-5 h-5 text-gray-800" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold">Bayar</h1>
@@ -42,7 +42,7 @@ export default function DetailPembayaranMobilPage() {
           />
           <span className="text-sm font-semibold">{selectedBank.name}</span>
         </div>
-        <Link href="/customer/mobil/konfirmasi-pembayaran">
+        <Link href="/customer/barang/konfirmasi-pembayaran">
           <span className="text-blue-500 text-sm font-medium">Ubah</span>
         </Link>
       </div>
@@ -51,18 +51,14 @@ export default function DetailPembayaranMobilPage() {
       <div className="px-4 mt-6">
         <h2 className="font-semibold text-sm mb-2">Detail Harga</h2>
         <div className="flex justify-between text-sm text-gray-600">
-          <span>DAIHATSU AYLA</span>
-          <span>Rp 360.000</span>
+          <span>Pengiriman Barang</span>
+          <span>Rp 50.000</span>
         </div>
-        <div className="text-xs text-gray-500 mt-1">
-          4 Penumpang (Orang x4)
-        </div>
+        <div className="text-xs text-gray-500 mt-1">1 Barang Besar</div>
 
         <div className="flex justify-between items-center mt-4 p-3 bg-gray-100 rounded-lg">
           <span className="text-sm font-medium text-gray-600">Total Harga</span>
-          <span className="text-base font-bold text-gray-800">
-            Rp 360.000
-          </span>
+          <span className="text-base font-bold text-gray-800">Rp 50.000</span>
         </div>
       </div>
 
@@ -109,15 +105,14 @@ export default function DetailPembayaranMobilPage() {
         </div>
       </div>
 
-   {/* Tombol Bayar */}
-<div className="px-4 py-6">
-  <Link href="/customer/mobil/pembayaran-berlangsung">
-    <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
-      Bayar Dengan {selectedBank.name}
-    </button>
-  </Link>
-</div>
-
+      {/* Tombol Bayar */}
+      <div className="px-4 py-6">
+        <Link href="/customer/barang/pembayaran-berlangsung">
+          <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+            Bayar Dengan {selectedBank.name}
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

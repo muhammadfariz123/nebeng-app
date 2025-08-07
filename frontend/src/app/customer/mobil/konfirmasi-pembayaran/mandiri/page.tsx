@@ -54,15 +54,11 @@ export default function DetailPembayaranMobilPage() {
           <span>DAIHATSU AYLA</span>
           <span>Rp 360.000</span>
         </div>
-        <div className="text-xs text-gray-500 mt-1">
-          4 Penumpang (Orang x4)
-        </div>
+        <div className="text-xs text-gray-500 mt-1">4 Penumpang (Orang x4)</div>
 
         <div className="flex justify-between items-center mt-4 p-3 bg-gray-100 rounded-lg">
           <span className="text-sm font-medium text-gray-600">Total Harga</span>
-          <span className="text-base font-bold text-gray-800">
-            Rp 360.000
-          </span>
+          <span className="text-base font-bold text-gray-800">Rp 360.000</span>
         </div>
       </div>
 
@@ -110,11 +106,13 @@ export default function DetailPembayaranMobilPage() {
       </div>
 
       {/* Tombol Bayar */}
-      <Link href="/customer/mobil/pembayaran-berlangsung">
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
-          Bayar Dengan {selectedBank.name}
-        </button>
-      </Link>
+      <div className="px-4 py-6">
+        <Link href="/customer/mobil/pembayaran-berlangsung">
+          <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+            Bayar Dengan {selectedBank.name}
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }
