@@ -1,13 +1,37 @@
-// components/SidebarCustomer.tsx
 "use client"
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, PackageSearch, CreditCard, Bell, User, LogOut, History, Send, Star } from "lucide-react"
+import { LogOut } from "lucide-react"
+
+// Import SVG icons as React components
+import BerandaIcon from "@/components/icons/beranda.svg"
+import RiwayatIcon from "@/components/icons/riwayat.svg"
+import ChatIcon from "@/components/icons/chat.svg"
+import ProfileIcon from "@/components/icons/profile.svg"
 
 const menu = [
-  { href: "/customer", icon: Home, label: "Beranda" },
+  {
+    href: "/customer",
+    label: "Beranda",
+    icon: <BerandaIcon className="w-5 h-5 mr-3" />,
+  },
+  {
+    href: "/customer/riwayat",
+    label: "Riwayat",
+    icon: <RiwayatIcon className="w-5 h-5 mr-3" />,
+  },
+  {
+    href: "/customer/chat",
+    label: "Chat",
+    icon: <ChatIcon className="w-5 h-5 mr-3" />,
+  },
+  {
+    href: "/customer/profile",
+    label: "Profile",
+    icon: <ProfileIcon className="w-5 h-5 mr-3" />,
+  },
 ]
 
 export default function SidebarCustomer() {
@@ -15,10 +39,8 @@ export default function SidebarCustomer() {
   const router = useRouter()
 
   const handleLogout = () => {
-    // Hapus status login dari localStorage atau cookie
     localStorage.removeItem("nebeng_token")
     localStorage.removeItem("nebeng_user")
-    // Arahkan ke login
     router.push("/login")
   }
 
@@ -32,10 +54,12 @@ export default function SidebarCustomer() {
             href={item.href}
             className={cn(
               "flex items-center px-4 py-2 rounded hover:bg-gray-100 transition",
-              pathname === item.href ? "bg-gray-200 font-semibold" : "text-gray-700"
+              pathname === item.href
+                ? "bg-gray-200 font-semibold"
+                : "text-gray-700"
             )}
           >
-            <item.icon className="w-5 h-5 mr-3" />
+            {item.icon}
             {item.label}
           </Link>
         ))}

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function BarangSearchPage() {
+export default function infoBarangSearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
