@@ -22,9 +22,9 @@ export default function UkuranBarangUmumPage() {
     router.push(
       `/customer/barang-umum/informasi?dari=${encodeURIComponent(
         dari
-      )}&ke=${encodeURIComponent(ke)}&tanggal=${tanggal}&ukuran=${encodeURIComponent(
-        ukuran
-      )}`
+      )}&ke=${encodeURIComponent(ke)}&tanggal=${encodeURIComponent(
+        tanggal
+      )}&ukuran=${encodeURIComponent(ukuran)}`
     );
   };
 

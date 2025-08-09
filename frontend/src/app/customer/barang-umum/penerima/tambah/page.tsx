@@ -1,45 +1,59 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function TambahPenerimaBarangPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [idType, setIdType] = useState("Pilih");
-  const [idNumber, setIdNumber] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [saveToList, setSaveToList] = useState(false);
+  const [tipeID, setTipeID] = useState("Pilih");
+  const [noID, setNoID] = useState("");
+  const [nama, setNama] = useState("");
+  const [simpan, setSimpan] = useState(false);
 
+  // Ambil tipe ID dari parameter URL jika ada
   useEffect(() => {
     const selectedType = searchParams.get("idType");
     if (selectedType) {
-      setIdType(selectedType);
+      setTipeID(selectedType);
+    } else {
+      const savedTipeID = localStorage.getItem("selectedTipeID");
+      if (savedTipeID) setTipeID(savedTipeID);
     }
   }, [searchParams]);
 
-  const handleSave = () => {
-    const newReceiver = {
-      name: fullName || "Nama Dummy",
-      idType: idType === "Pilih" ? "KTP" : idType,
-      idNumber: idNumber || "0000000000",
-      saved: saveToList,
-    };
+  // Hanya izinkan angka untuk No ID
+  const handleNoIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    setNoID(value);
+  };
 
-    // Simpan ke daftar penerima jika toggle aktif
-    if (saveToList) {
-      const existing = localStorage.getItem("receivers");
-      const receivers = existing ? JSON.parse(existing) : [];
-      receivers.push(newReceiver);
-      localStorage.setItem("receivers", JSON.stringify(receivers));
+  const handleSave = () => {
+    if (!tipeID || tipeID === "Pilih" || !noID || !nama) {
+      alert("Harap lengkapi semua data penerima!");
+      return;
     }
 
-    // Simpan sebagai penerima aktif (untuk halaman utama)
-    localStorage.setItem("currentReceiver", JSON.stringify(newReceiver));
+    const penerimaData = {
+      id: Date.now(),
+      tipeID,
+      noID,
+      nama,
+      saved: simpan,
+    };
 
-    // Arahkan kembali ke halaman utama barang umum
+    // Simpan penerima yang dipilih untuk halaman /pesan
+    localStorage.setItem("selectedPenerimaBarang", JSON.stringify(penerimaData));
+
+    // Kalau "Simpan ke daftar data" dicentang
+    if (simpan) {
+      const existingList = JSON.parse(localStorage.getItem("penerimaList") || "[]");
+      existingList.push(penerimaData);
+      localStorage.setItem("penerimaList", JSON.stringify(existingList));
+    }
+
     router.push("/customer/barang-umum/pesan");
   };
 
@@ -67,8 +81,8 @@ export default function TambahPenerimaBarangPage() {
             }
             className="flex justify-between items-center border rounded-lg px-3 py-3 text-sm mt-1 cursor-pointer"
           >
-            <span className={`${idType === "Pilih" ? "text-gray-400" : ""}`}>
-              {idType}
+            <span className={`${tipeID === "Pilih" ? "text-gray-400" : ""}`}>
+              {tipeID}
             </span>
             <ChevronDown className="w-4 h-4 text-gray-400" />
           </div>
@@ -78,11 +92,13 @@ export default function TambahPenerimaBarangPage() {
         <div>
           <label className="text-xs text-gray-500">No.ID</label>
           <input
-            type="text"
+            type="tel"
             placeholder="Nomor Identitas"
-            value={idNumber}
-            onChange={(e) => setIdNumber(e.target.value)}
+            value={noID}
+            onChange={handleNoIDChange}
             className="w-full border rounded-lg px-3 py-3 text-sm mt-1 placeholder-gray-400"
+            inputMode="numeric"
+            pattern="[0-9]*"
           />
         </div>
 
@@ -92,8 +108,8 @@ export default function TambahPenerimaBarangPage() {
           <input
             type="text"
             placeholder="Masukkan nama lengkap sesuai ID"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
             className="w-full border rounded-lg px-3 py-3 text-sm mt-1 placeholder-gray-400"
           />
         </div>
@@ -103,18 +119,16 @@ export default function TambahPenerimaBarangPage() {
           <span className="text-sm text-gray-700">
             Simpan ke daftar penerima barang
           </span>
-          <button
-            onClick={() => setSaveToList(!saveToList)}
-            className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
-              saveToList ? "bg-blue-600" : "bg-gray-300"
-            }`}
-          >
-            <div
-              className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
-                saveToList ? "translate-x-4" : "translate-x-0"
-              }`}
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={simpan}
+              onChange={(e) => setSimpan(e.target.checked)}
+              className="sr-only peer"
             />
-          </button>
+            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
+          </label>
         </div>
       </div>
 
@@ -122,7 +136,7 @@ export default function TambahPenerimaBarangPage() {
       <div className="p-4 mt-auto">
         <button
           onClick={handleSave}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-sm"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold text-sm"
         >
           SIMPAN
         </button>

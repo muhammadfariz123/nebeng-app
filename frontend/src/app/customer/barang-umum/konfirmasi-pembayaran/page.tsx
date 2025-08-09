@@ -9,7 +9,7 @@ export default function KonfirmasiPembayaranBarangUmumPage() {
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b px-4 py-4 flex items-center">
-        <Link href="/customer/barang-umum/konfirmasi-pesanan">
+        <Link href="/customer/barang-umum/konfirmasi">
           <ArrowLeft className="w-5 h-5 text-gray-800" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold">

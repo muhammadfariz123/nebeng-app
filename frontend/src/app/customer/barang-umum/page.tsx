@@ -16,13 +16,13 @@ export default function BarangUmumPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [lokasiDari, setLokasiDari] = useState("Lokasi Awal");
-  const [lokasiKe, setLokasiKe] = useState("Lokasi Tujuan");
+  const [lokasiDari, setLokasiDari] = useState("YOGYAKARTA POS 2");
+  const [lokasiKe, setLokasiKe] = useState("SOLO POS 1");
   const [tanggal, setTanggal] = useState(() => {
     const today = new Date().toISOString().split("T")[0];
     return today;
   });
-  const [detailBarang, setDetailBarang] = useState("Informasi Barang");
+  const [detailBarang, setDetailBarang] = useState("Informasi Barang Umum");
 
   useEffect(() => {
     const dari = searchParams.get("dari");
@@ -44,11 +44,9 @@ export default function BarangUmumPage() {
     setLokasiKe(newKe);
 
     router.replace(
-      `/customer/barang-umum?dari=${encodeURIComponent(
-        newDari
-      )}&ke=${encodeURIComponent(newKe)}&tanggal=${tanggal}&barang=${encodeURIComponent(
-        detailBarang
-      )}`
+      `/customer/barang-umum?dari=${encodeURIComponent(newDari)}&ke=${encodeURIComponent(
+        newKe
+      )}&tanggal=${tanggal}&barang=${encodeURIComponent(detailBarang)}`
     );
   };
 
@@ -76,10 +74,7 @@ export default function BarangUmumPage() {
           </Link>
         </div>
         <div className="px-6 pt-2">
-          <h1 className="text-xl font-bold text-center leading-tight">
-            Barang
-          </h1>
-          <p className="text-sm text-center">(Transportasi Umum)</p>
+          <h1 className="text-2xl font-bold text-center">Barang Umum</h1>
         </div>
       </div>
 

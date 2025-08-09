@@ -39,7 +39,9 @@ export default function InformasiBarangUmumPage() {
     router.push(
       `/customer/barang-umum/informasi/ukuran?dari=${encodeURIComponent(
         dari
-      )}&ke=${encodeURIComponent(ke)}&tanggal=${tanggal}&ukuran=${encodeURIComponent(ukuran)}`
+      )}&ke=${encodeURIComponent(ke)}&tanggal=${encodeURIComponent(
+        tanggal
+      )}&ukuran=${encodeURIComponent(ukuran)}`
     );
   };
 
@@ -59,7 +61,9 @@ export default function InformasiBarangUmumPage() {
     router.push(
       `/customer/barang-umum?dari=${encodeURIComponent(
         dari
-      )}&ke=${encodeURIComponent(ke)}&tanggal=${tanggal}&barang=${encodeURIComponent(detail)}`
+      )}&ke=${encodeURIComponent(ke)}&tanggal=${encodeURIComponent(
+        tanggal
+      )}&barang=${encodeURIComponent(detail)}`
     );
   };
 
@@ -73,7 +77,7 @@ export default function InformasiBarangUmumPage() {
         >
           <ArrowLeft />
         </button>
-        <h1 className="text-lg font-semibold ml-3">Detail Barang (Umum)</h1>
+        <h1 className="text-lg font-semibold ml-3">Detail Barang Umum</h1>
       </div>
 
       {/* Pilih ukuran */}

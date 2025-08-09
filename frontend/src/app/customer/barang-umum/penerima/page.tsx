@@ -1,99 +1,113 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
-interface Receiver {
-  name: string;
-  idType: string;
-  idNumber: string;
+interface Penerima {
+  id: number;
+  nama: string;
+  tipeID: string;
+  noID: string;
 }
 
-export default function InformasiPenerimaBarangPage() {
+export default function PenerimaBarangPage() {
+  const [penerimaList, setPenerimaList] = useState<Penerima[]>([]);
+  const [search, setSearch] = useState("");
   const router = useRouter();
-  const [receivers, setReceivers] = useState<Receiver[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem("receivers");
-    if (stored) {
-      const filtered = JSON.parse(stored).filter(
-        (r: Receiver) => r.name.trim() !== "" && r.idNumber.trim() !== ""
-      );
-      setReceivers(filtered);
-    } else {
-      setReceivers([]);
+    const savedList = localStorage.getItem("penerimaList");
+    if (savedList) {
+      try {
+        const parsed = JSON.parse(savedList).filter(
+          (p: Penerima) =>
+            p.nama.trim() !== "" &&
+            p.noID.trim() !== "" &&
+            p.tipeID.trim() !== ""
+        );
+        setPenerimaList(parsed);
+      } catch {
+        setPenerimaList([]);
+      }
     }
   }, []);
 
-  const filteredReceivers = receivers.filter((r) =>
-    r.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredList = penerimaList.filter((p) =>
+    p.nama.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleSelect = (penerima: Penerima) => {
+    localStorage.setItem("selectedPenerima", JSON.stringify(penerima));
+    router.push("/customer/barang-umum/pesan");
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen bg-white text-black flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b px-4 pt-10 pb-4 flex items-center">
-        <Link href="/customer/barang/barang-umum">
-          <ArrowLeft className="w-5 h-5 text-gray-700" />
+      <div className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3 bg-white border-b">
+        <Link href="/customer/barang-umum/pesan" className="text-black">
+          <ArrowLeft size={24} />
         </Link>
-        <h1 className="flex-1 text-center font-semibold text-base">
+        <h1 className="flex-1 text-center text-sm font-semibold">
           Informasi Penerima Barang
         </h1>
-        <div className="w-5" />
+        <div className="w-6" />
       </div>
 
-      {/* Tombol Tambah Penerima Baru */}
-      <div className="p-4">
-        <button
-          onClick={() => router.push("/customer/barang-umum/penerima/tambah")}
-          className="flex items-center gap-2 w-full border border-gray-300 rounded-lg px-4 py-3 text-sm font-semibold text-blue-600"
+      <div className="p-4 space-y-4">
+        {/* Tombol Tambah Data Baru */}
+        <Link
+          href="/customer/barang-umum/penerima/tambah"
+          className="flex items-center gap-2 w-full bg-white border border-gray-300 rounded-xl p-4 shadow-sm hover:shadow-md transition"
         >
-          <Plus className="w-4 h-4" />
-          Tambah Data Baru
-        </button>
-      </div>
+          <Plus size={18} className="text-blue-600" />
+          <span className="text-sm font-semibold text-blue-600">
+            Tambah Data Baru
+          </span>
+        </Link>
 
-      {/* Pencarian */}
-      <div className="px-4 mb-2">
-        <input
-          type="text"
-          placeholder="Cari data tersimpan"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-        />
-      </div>
-
-      {/* Daftar Penerima */}
-      <div className="px-4">
-        {filteredReceivers.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center mt-4">
-            {searchTerm
-              ? "Tidak ada penerima yang cocok"
-              : "Belum ada data penerima yang ditambahkan"}
+        {/* Search */}
+        <div>
+          <p className="text-xs text-gray-500 mb-2">
+            atau, pilih dari daftar data tersimpan
           </p>
-        ) : (
-          filteredReceivers.map((r, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center border-b py-4 cursor-pointer"
-              onClick={() =>
-                router.push(`/customer/barang-umum/penerima/edit?index=${index}`)
-              }
-            >
-              <div>
-                <p className="font-semibold text-sm">{r.name}</p>
-                <p className="text-xs text-gray-500">
-                  {r.idType} - {r.idNumber}
-                </p>
-              </div>
-              <span className="text-blue-600 text-sm">{">"}</span>
-            </div>
-          ))
-        )}
+          <input
+            type="text"
+            placeholder="Cari data tersimpan"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"
+          />
+        </div>
+
+        {/* List Penerima */}
+        <div className="space-y-2">
+          {filteredList.length > 0 ? (
+            filteredList.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => handleSelect(p)}
+                className="flex items-center justify-between w-full bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition"
+              >
+                <div className="text-left">
+                  <p className="text-sm font-semibold">{p.nama}</p>
+                  <p className="text-xs text-gray-500">
+                    {p.tipeID} - {p.noID}
+                  </p>
+                </div>
+                <span className="text-gray-400 text-lg">›</span>
+              </button>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">
+              {search
+                ? "Tidak ada penerima yang cocok"
+                : "Belum ada data penerima tersimpan."}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -19,24 +19,24 @@ export default function PilihLokasiBarangUmumPage() {
   const dari = searchParams.get("dari") || "";
   const ke = searchParams.get("ke") || "";
   const tanggal = searchParams.get("tanggal") || "";
+  const ukuran = searchParams.get("ukuran") || "";
 
   const handleSelect = (lokasi: string) => {
-    // Kembali ke halaman utama barang-umum dengan query parameter baru
-    const newParams =
+    const newQuery =
       tipe === "dari"
         ? `?dari=${encodeURIComponent(lokasi)}&ke=${encodeURIComponent(
             ke
-          )}&tanggal=${tanggal}`
+          )}&tanggal=${tanggal}&ukuran=${encodeURIComponent(ukuran)}`
         : `?dari=${encodeURIComponent(dari)}&ke=${encodeURIComponent(
             lokasi
-          )}&tanggal=${tanggal}`;
+          )}&tanggal=${tanggal}&ukuran=${encodeURIComponent(ukuran)}`;
 
-    router.push(`/customer/barang-umum${newParams}`);
+    router.push(`/customer/barang-umum${newQuery}`);
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Search bar */}
+      {/* Search Bar */}
       <div className="px-4 pt-6 flex items-center gap-3">
         <button
           className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -54,7 +54,7 @@ export default function PilihLokasiBarangUmumPage() {
         </div>
       </div>
 
-      {/* List lokasi */}
+      {/* List Lokasi */}
       <div className="mt-4 px-4">
         {dummyLocations.map((lokasi, index) => (
           <div

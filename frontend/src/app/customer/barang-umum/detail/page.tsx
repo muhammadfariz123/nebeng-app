@@ -1,95 +1,115 @@
 'use client'
 
-import { ArrowLeft, Train } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
+import { ArrowLeft, CarFront } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
-export default function RingkasanPerjalananBarang() {
-  const router = useRouter()
+export default function DetailPengirimanBarangUmumPage() {
+  const params = useSearchParams()
 
-  const data = {
-    tanggal: 'Sab, 14 Sep',
-    berangkat: '07.00',
-    tiba: '09.30',
-    durasi: '02j 30m',
-    dari: 'STASIUN YOGYAKARTA',
-    ke: 'STASIUN PURWOKERTO',
-    kendaraan: 'FAJAR UTAMA (YK)',
-    harga: 90000,
-    jenisBarang: 'Barang Besar',
-    catatan: 'Jangan dibanting, vas bunganya mudah pecah. :)',
-    foto: '/vas.png'
-  }
+  const tanggal = params.get('tanggal') || 'Sab, 14 Sep'
+  const berangkat = params.get('berangkat') || '07.00'
+  const tiba = params.get('tiba') || '09.30'
+  const durasi = params.get('durasi') || '02j 30m'
+  const dari = params.get('dari') || 'STASIUN YOGYAKARTA'
+  const ke = params.get('ke') || 'STASIUN PURWOKERTO'
+  const kendaraan = params.get('kendaraan') || 'FAJAR UTAMA (YK)'
+  const harga = params.get('harga') || '90000'
+  const jenisBarang = params.get('jenisBarang') || 'Barang Besar'
+  const catatan =
+    params.get('catatan') || 'Jangan dibanting, vas bunganya mudah pecah. :)'
+  const foto = params.get('foto') || '/vas.png'
+  const plat = params.get('plat') || 'AB3412AH'
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b px-4 py-4 flex items-center">
+      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b bg-white">
         <Link href="/customer/barang-umum/pesan" className="text-black">
           <ArrowLeft size={24} />
         </Link>
-        <h1 className="flex-1 text-center text-sm font-semibold">
-          {data.kendaraan} - {data.dari}
-        </h1>
+        <h1 className="text-sm font-semibold">{kendaraan}</h1>
         <div className="w-6" />
       </div>
 
-      {/* Rute Pengiriman Barang */}
-      <div className="px-4 mt-4">
-        <h3 className="font-semibold mb-2">Rute Pengiriman Barang</h3>
-        <div className="border rounded-lg p-3">
-          <div className="flex items-start gap-4">
-            {/* Waktu dan garis */}
-            <div className="flex flex-col items-center">
-              <span className="text-xs font-semibold">{data.berangkat}</span>
-              <span className="text-[10px] text-gray-500">{data.tanggal}</span>
-              <div className="w-px flex-1 bg-gray-300 my-1"></div>
-              <span className="text-xs font-semibold">{data.tiba}</span>
-              <span className="text-[10px] text-gray-500">{data.tanggal}</span>
-            </div>
-            {/* Rute */}
-            <div className="flex flex-col gap-3">
-              <p className="text-sm">{data.dari}</p>
-              <div className="flex items-center gap-2 text-blue-600">
-                <Train className="w-4 h-4" />
-                <span className="text-sm font-semibold">{data.kendaraan}</span>
+      <div className="p-4 space-y-6">
+        {/* Rute Pengiriman Barang */}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Rute Pengiriman Barang</h2>
+          <div className="relative rounded-xl border p-4">
+            <div className="flex justify-between">
+              {/* Kolom kiri: Jam & Tanggal */}
+              <div className="flex flex-col justify-between text-xs text-gray-600">
+                <div>
+                  <p className="font-semibold">{berangkat}</p>
+                  <p>{tanggal}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">{tiba}</p>
+                  <p>{tanggal}</p>
+                </div>
               </div>
-              <p className="text-sm">{data.ke}</p>
+
+              {/* Kolom tengah: Jalur + Kendaraan */}
+              <div className="relative flex flex-col items-center px-4">
+                <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                <div className="h-10 border-l-2 border-dashed border-blue-400" />
+
+                <CarFront size={18} className="text-blue-600 my-1" />
+                <span className="text-[10px] text-black font-semibold">
+                  {kendaraan}
+                </span>
+                <span className="text-[10px] text-gray-500">{plat}</span>
+
+                <div className="h-10 border-l-2 border-dashed border-blue-400" />
+                <div className="w-2 h-2 border border-blue-600 rounded-full" />
+
+                {/* Durasi */}
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 text-xs text-gray-500 whitespace-nowrap">
+                  {durasi}
+                </div>
+              </div>
+
+              {/* Kolom kanan: Lokasi */}
+              <div className="flex flex-col justify-between text-xs text-gray-600">
+                <p className="font-semibold text-blue-900">{dari}</p>
+                <p className="font-semibold text-blue-900">{ke}</p>
+              </div>
             </div>
-            {/* Durasi */}
-            <div className="ml-auto text-xs text-gray-500">{data.durasi}</div>
           </div>
         </div>
-      </div>
 
-      {/* Detail Harga */}
-      <div className="px-4 mt-4">
-        <h3 className="font-semibold mb-1">Detail Harga</h3>
-        <div className="flex justify-between text-sm">
-          <span>{data.jenisBarang}</span>
-          <span className="font-bold">Rp {data.harga.toLocaleString('id-ID')}</span>
+        {/* Detail Harga */}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Detail Harga</h2>
+          <div className="flex justify-between items-center text-sm">
+            <p className="text-gray-500">{jenisBarang}</p>
+            <p className="font-bold text-blue-700">
+              Rp {parseInt(harga).toLocaleString('id-ID')}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Catatan Barang */}
-      <div className="px-4 mt-4">
-        <h3 className="font-semibold mb-1">Catatan Barang</h3>
-        <div className="border rounded-lg p-2 text-sm text-gray-700">
-          {data.catatan}
+        {/* Catatan Barang */}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Catatan Barang</h2>
+          <div className="bg-white rounded-xl p-4 border text-sm text-gray-700">
+            {catatan}
+          </div>
         </div>
-      </div>
 
-      {/* Foto Barang */}
-      <div className="px-4 mt-4">
-        <h3 className="font-semibold mb-1">Foto Barang</h3>
-        <Image
-          src={data.foto}
-          alt="Foto Barang"
-          width={80}
-          height={80}
-          className="rounded-lg object-cover"
-        />
+        {/* Foto Barang */}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Foto Barang</h2>
+          <Image
+            src={foto}
+            alt="Foto Barang"
+            width={100}
+            height={100}
+            className="rounded-xl object-cover"
+          />
+        </div>
       </div>
     </div>
   )

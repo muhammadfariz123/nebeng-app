@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function PembayaranBarangUmumPage() {
-  const [secondsLeft, setSecondsLeft] = useState(24 * 3600); // 24 jam
+  // 24 jam = 86400 detik
+  const [secondsLeft, setSecondsLeft] = useState(86400);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,34 +30,36 @@ export default function PembayaranBarangUmumPage() {
   const [hh, mm, ss] = formatTime(secondsLeft);
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-blue-600 px-4 py-4 flex items-center text-white">
-        <Link href="/customer/barang-umum/konfirmasi-pembayaran">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="flex-1 text-center text-base font-semibold">
-          Lakukan Pembayaran
-        </h1>
-        <div className="w-5" />
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* HEADER */}
+      <div className="bg-gradient-to-b from-blue-600 to-blue-500 text-white px-4 pt-6 pb-8 rounded-b-3xl shadow">
+        <div className="flex items-center mb-4">
+          <Link href="/customer/barang-umum/konfirmasi-pembayaran">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h1 className="flex-1 text-center text-base font-semibold">
+            Lakukan Pembayaran
+          </h1>
+          <div className="w-5" />
+        </div>
+
+        {/* Timer */}
+        <div className="flex justify-center items-center gap-2 text-lg font-bold">
+          <div className="bg-white text-gray-800 rounded-lg px-3 py-2">
+            {hh}
+          </div>
+          :
+          <div className="bg-white text-gray-800 rounded-lg px-3 py-2">
+            {mm}
+          </div>
+          :
+          <div className="bg-white text-gray-800 rounded-lg px-3 py-2">
+            {ss}
+          </div>
+        </div>
       </div>
 
-      {/* Timer */}
-      <div className="flex justify-center items-center gap-2 mt-6">
-        <div className="bg-white shadow rounded-lg px-4 py-2 text-xl font-bold">
-          {hh}
-        </div>
-        <span className="text-lg font-bold">:</span>
-        <div className="bg-white shadow rounded-lg px-4 py-2 text-xl font-bold">
-          {mm}
-        </div>
-        <span className="text-lg font-bold">:</span>
-        <div className="bg-white shadow rounded-lg px-4 py-2 text-xl font-bold">
-          {ss}
-        </div>
-      </div>
-
-      {/* Info batas waktu */}
+      {/* BATAS WAKTU */}
       <div className="bg-orange-100 border-l-4 border-orange-500 mx-4 mt-4 p-3 rounded">
         <p className="text-sm text-orange-700">
           Selesaikan pembayaran sebelum{" "}
@@ -64,23 +67,26 @@ export default function PembayaranBarangUmumPage() {
         </p>
       </div>
 
-      {/* Kode Pembayaran */}
+      {/* KODE PEMBAYARAN */}
       <div className="mx-4 mt-4 p-4 border rounded-lg shadow-sm">
         <p className="text-sm text-gray-500 mb-1">Total yang harus dibayar</p>
         <p className="text-xl font-bold mb-3">Rp 90.000</p>
+
         <p className="text-sm text-gray-500 mb-1">Kode Pembayaran</p>
-        <p className="text-lg font-mono font-bold tracking-wider">
+        <div className="flex items-center justify-between font-mono text-lg font-bold">
           392019394203902
-        </p>
+          <Copy className="w-5 h-5 text-blue-600 cursor-pointer" />
+        </div>
+
         <div className="flex items-center mt-3">
-          <Image src="/bni.png" alt="BNI" width={32} height={32} />
+          <Image src="/bni.png" alt="BNI" width={40} height={40} />
           <span className="ml-2 text-sm font-semibold">
             VIRTUAL ACCOUNT BNI
           </span>
         </div>
       </div>
 
-      {/* Detail perjalanan */}
+      {/* DETAIL PENGIRIMAN */}
       <div className="mx-4 mt-4 p-4 border rounded-lg shadow-sm">
         <p className="text-sm text-gray-500">
           Sabtu, 14 September 2024 • 07.00 - 09.30
@@ -90,7 +96,7 @@ export default function PembayaranBarangUmumPage() {
         <p className="text-xs text-gray-500">Barang Besar</p>
       </div>
 
-      {/* Tombol */}
+      {/* TOMBOL */}
       <div className="mt-auto px-4 py-6 space-y-3">
         <Link
           href="/customer/barang-umum/status-pembayaran"
