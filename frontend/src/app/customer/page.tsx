@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  RiMapPin2Fill,
-  RiNotification3Line,
-} from "react-icons/ri";
+import { RiMapPin2Fill, RiNotification3Line } from "react-icons/ri";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -19,6 +16,7 @@ interface Destination {
   id: number;
   title: string;
   destination_img: string;
+  maps_url: string;
 }
 
 interface Customer {
@@ -38,18 +36,20 @@ export default function CustomerHomePage() {
       credit_amount: 0,
     });
 
-    setSliders([{ id: 1, slider_img: "/slider1.png", is_active: true }]);
+    setSliders([{ id: 1, slider_img: "/promo1.png", is_active: true }]);
 
     setDestinations([
       {
         id: 1,
         title: "Jakarta",
-        destination_img: "/destinations/jakarta.jpg",
+        destination_img: "/jakarta.jpg",
+        maps_url: "https://maps.app.goo.gl/Pk6V8ydxcGJS7Brr6",
       },
       {
         id: 2,
         title: "Bandung",
-        destination_img: "/destinations/bandung.jpg",
+        destination_img: "/bandung.jpg",
+        maps_url: "https://maps.app.goo.gl/ZnPKQdyfF5ocM7DZ8", // diperbaiki
       },
     ]);
   }, []);
@@ -100,7 +100,7 @@ export default function CustomerHomePage() {
               {customer?.full_name ?? "Customer"}
             </h1>
           </div>
-          <RiNotification3Line className="w-6 h-6" />
+          <RiNotification3Line className="w-6 h-6 cursor-pointer" />
         </div>
 
         {/* Poin Box */}
@@ -115,7 +115,7 @@ export default function CustomerHomePage() {
       </div>
 
       <div className="px-6 pt-20 space-y-6 pb-20">
-        {/* Kategori Layanan dengan Gambar (Gaya Buat Tebengan) */}
+        {/* Kategori Layanan */}
         <div className="text-center">
           <h3 className="text-xl font-semibold mb-2">Layanan</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -145,15 +145,16 @@ export default function CustomerHomePage() {
           </div>
         </div>
 
-        {/* Slider */}
+        {/* Slider Full Gambar */}
         <div className="space-y-2">
-          <Image
-            src={sliders[0]?.slider_img || "/slider1.png"}
-            alt="Promo"
-            width={600}
-            height={200}
-            className="rounded-xl w-full object-cover shadow-md"
-          />
+          <div className="w-full h-40 sm:h-56 md:h-64 lg:h-72 relative rounded-xl overflow-hidden shadow-md">
+            <Image
+              src={sliders[0]?.slider_img || "/promo1.png"}
+              alt="Promo"
+              fill
+              className="object-cover"
+            />
+          </div>
         </div>
 
         {/* Destinasi Populer */}
@@ -166,15 +167,17 @@ export default function CustomerHomePage() {
             {destinations.map((dest) => (
               <Card
                 key={dest.id}
-                className="overflow-hidden rounded-xl shadow-md transition-transform hover:scale-[1.02]"
+                onClick={() => window.open(dest.maps_url, "_blank")}
+                className="overflow-hidden rounded-xl shadow-md transition-transform hover:scale-[1.02] cursor-pointer"
               >
-                <Image
-                  src={dest.destination_img}
-                  alt={dest.title}
-                  width={400}
-                  height={200}
-                  className="w-full h-28 object-cover"
-                />
+                <div className="w-full h-28 relative">
+                  <Image
+                    src={dest.destination_img}
+                    alt={dest.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
                 <CardContent className="p-3 flex items-center gap-2">
                   <RiMapPin2Fill className="w-5 h-5 text-primary" />
                   <p className="text-sm font-medium">{dest.title}</p>
