@@ -36,6 +36,10 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+<<<<<<< HEAD
+=======
+    "@svgr/webpack": "^8.1.0",
+>>>>>>> c704f51 (merapikan repo dan menyesuaikan tampilan bagian motor di customer agar sesuai)
     "@tailwindcss/postcss": "^4",
     "@types/axios": "^0.9.36",
     "@types/node": "^20",

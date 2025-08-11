@@ -49,7 +49,7 @@ export default function CustomerHomePage() {
         id: 2,
         title: "Bandung",
         destination_img: "/bandung.jpg",
-        maps_url: "https://maps.app.goo.gl/ZnPKQdyfF5ocM7DZ8", // diperbaiki
+        maps_url: "https://maps.app.goo.gl/ZnPKQdyfF5ocM7DZ8",
       },
     ]);
   }, []);
@@ -100,7 +100,13 @@ export default function CustomerHomePage() {
               {customer?.full_name ?? "Customer"}
             </h1>
           </div>
-          <RiNotification3Line className="w-6 h-6 cursor-pointer" />
+          {/* Klik lonceng untuk ke halaman inbox */}
+          <div
+            className="w-10 h-10 bg-white bg-opacity-30 rounded-full flex items-center justify-center cursor-pointer"
+            onClick={() => router.push("/customer/inbox")}
+          >
+            <RiNotification3Line className="w-6 h-6 text-gray-800" />
+          </div>
         </div>
 
         {/* Poin Box */}
