@@ -9,9 +9,9 @@ export default function PesanMotorPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      {/* Bagian Header + Background */}
+      {/* Header + Background */}
       <div
-        className="pt-10 pb-20 px-4 text-white relative"
+        className="pt-10 pb-24 px-4 text-white relative"
         style={{
           backgroundImage: "url('/bg.png')",
           backgroundSize: "cover",
@@ -19,7 +19,7 @@ export default function PesanMotorPage() {
         }}
       >
         {/* Header */}
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-5">
           <Link href="/customer/motor/hasil">
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
@@ -46,75 +46,36 @@ export default function PesanMotorPage() {
         </div>
       </div>
 
-      {/* Container Abu-Abu */}
-      <div className="relative z-10 -mt-10 bg-gray-100 rounded-t-2xl px-4 flex-1 space-y-6 text-gray-800 pt-6 pb-6">
-        {/* Rute Motor dan Harga */}
-        <div className="bg-white rounded-xl p-4 space-y-4 shadow">
-          <h2 className="text-sm font-bold text-gray-800">YAMAHA NMAX</h2>
-          <p className="text-sm font-semibold text-gray-600 mt-1">Rute Motor</p>
-
-          <div className="bg-white rounded-xl p-4 mt-2 shadow-sm border border-gray-100">
-            <div className="flex justify-between text-sm text-gray-600">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-semibold text-gray-800">07.00</p>
-                <p className="text-xs text-gray-500">Sab, 14 Sep</p>
-              </div>
-
-              <div className="flex flex-col items-center justify-center gap-1 text-xs text-gray-500">
-                <div className="w-2 h-2 rounded-full bg-blue-600" />
-                <div className="w-0.5 h-4 bg-blue-200" />
-                <div className="text-[10px] font-semibold text-blue-600">
-                  🛵 YAMAHA NMAX
-                </div>
-                <div className="text-[10px]">AB1234UH</div>
-                <div className="w-0.5 h-4 bg-blue-200" />
-                <div className="w-2 h-2 rounded-full border border-blue-600" />
-              </div>
-
-              <div className="flex flex-col gap-1 text-right">
-                <p className="text-sm font-semibold text-gray-800">08.30</p>
-                <p className="text-xs text-gray-500">Sab, 14 Sep</p>
-              </div>
-            </div>
-
-            <div className="flex justify-between mt-2 text-xs text-gray-600 font-medium">
-              <p>YOGYAKARTA POS 2</p>
-              <p>SOLO POS 1</p>
-            </div>
+      {/* Container Putih */}
+      <div className="relative z-10 -mt-8 bg-gray-100 rounded-t-2xl px-4 flex-1 space-y-4 text-gray-800 pt-6 pb-6">
+        {/* Detail Pemesanan */}
+        <div className="bg-white rounded-xl p-4 space-y-3 shadow">
+          <h3 className="text-sm font-semibold text-gray-800">
+            Detail Pemesanan
+          </h3>
+          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+            <p className="text-xs text-gray-500">Nama</p>
+            <p className="text-sm font-semibold">NADYA AMALYA FATHONI</p>
           </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-gray-800 mb-1">
-              Detail Harga
-            </h3>
-            <div className="flex justify-between text-sm text-gray-800">
-              <p className="text-gray-500">Total Harga</p>
-              <p className="font-bold">Rp 110.000</p>
-            </div>
+          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+            <p className="text-xs text-gray-500">Email</p>
+            <p className="text-sm">nadya01mei@gmail.com</p>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+            <p className="text-xs text-gray-500">No Telepon</p>
+            <p className="text-sm">08218839121</p>
           </div>
         </div>
 
         {/* Detail Penumpang */}
-        <div className="bg-white rounded-xl p-4 space-y-4 text-sm shadow">
+        <div className="bg-white rounded-xl p-4 space-y-3 shadow">
           <h3 className="text-sm font-semibold text-gray-800">
             Detail Penumpang
           </h3>
-
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500">Nama</p>
-            <p className="font-semibold">NADYA AMALYA FATHONI</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500">Email</p>
-            <p>nadya01mei@gmail.com</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500">No Telepon</p>
-            <p>08218839121</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500">KTP</p>
-            <p>201230920191921</p>
+          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+            <p className="text-xs text-gray-500">Penumpang 1</p>
+            <p className="text-sm font-semibold">NADYA AMALYA FATHONI</p>
+            <p className="text-xs text-gray-500">KTP - 201230920191921</p>
           </div>
         </div>
 
