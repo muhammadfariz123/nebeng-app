@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, CarFront } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -56,7 +56,14 @@ export default function DetailPengirimanBarangUmumPage() {
                 <div className="w-2 h-2 bg-blue-600 rounded-full" />
                 <div className="h-10 border-l-2 border-dashed border-blue-400" />
 
-                <CarFront size={18} className="text-blue-600 my-1" />
+                {/* Icon kereta dari public/icons */}
+                <Image
+                  src="/icons/kereta.svg"
+                  alt="Kereta"
+                  width={20}
+                  height={20}
+                  className="my-1"
+                />
                 <span className="text-[10px] text-black font-semibold">
                   {kendaraan}
                 </span>

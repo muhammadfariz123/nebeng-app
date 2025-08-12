@@ -30,8 +30,15 @@ export default function PembayaranPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f5f7fa]">
-      {/* Header */}
-      <div className="bg-blue-600 text-white px-4 pt-10 pb-4 flex items-center">
+      {/* Header dengan background image */}
+      <div
+        className="relative text-white px-4 pt-10 pb-4 flex items-center"
+        style={{
+          backgroundImage: "url('/bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <Link href="/customer/mobil/pesan">
           <ArrowLeft className="w-5 h-5 text-white" />
         </Link>

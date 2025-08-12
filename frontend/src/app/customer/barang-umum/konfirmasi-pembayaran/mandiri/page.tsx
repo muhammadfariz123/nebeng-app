@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -73,17 +73,25 @@ export default function DetailPembayaranBarangUmumPage() {
         <div className="px-4 mt-6">
           <div className="border rounded-lg overflow-hidden">
             <button
-              className="w-full bg-gray-100 px-4 py-3 flex justify-between items-center"
               onClick={() => setShowInstruksi(!showInstruksi)}
+              className="bg-gray-100 px-4 py-3 flex justify-between items-center w-full"
             >
-              <span className="font-semibold text-sm text-gray-800">
-                Lihat tata cara pembayaran
-              </span>
-              {showInstruksi ? (
-                <ChevronUp className="w-4 h-4 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-600" />
-              )}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/icons/wallet.svg"
+                  alt="Wallet Icon"
+                  width={20}
+                  height={20}
+                />
+                <span className="font-semibold text-sm text-gray-800">
+                  Lihat tata cara pembayaran
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
+                  showInstruksi ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {showInstruksi && (
@@ -94,9 +102,7 @@ export default function DetailPembayaranBarangUmumPage() {
                     {selectedBank.name.replace("BANK ", "")}
                   </div>
                   <ol className="list-decimal ml-4 space-y-1 text-xs text-gray-700">
-                    <li>
-                      Masukkan ATM dan PIN {selectedBank.name} kamu
-                    </li>
+                    <li>Masukkan ATM dan PIN {selectedBank.name} kamu</li>
                     <li>Pilih Menu Lainnya</li>
                     <li>
                       Lalu pilih “Transfer” &gt; “Rekening Tabungan” &gt; ke
@@ -105,8 +111,8 @@ export default function DetailPembayaranBarangUmumPage() {
                     <li>Masukkan nomor Virtual Account</li>
                     <li>Masukkan jumlah pembayaran sesuai tagihan</li>
                     <li>
-                      Di halaman konfirmasi, pastikan data transaksi sudah
-                      benar lalu pilih “Ya”
+                      Di halaman konfirmasi, pastikan data transaksi sudah benar
+                      lalu pilih “Ya”
                     </li>
                   </ol>
                 </div>
@@ -131,7 +137,7 @@ export default function DetailPembayaranBarangUmumPage() {
       </div>
 
       {/* Tombol Bayar */}
-      <div className="px-4 py-6 border-t bg-white">
+      <div className="px-4 py-6">
         <Link href="/customer/barang-umum/pembayaran-berlangsung">
           <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
             Bayar Dengan {selectedBank.name}

@@ -19,7 +19,6 @@ export default function InformasiPenumpangPage() {
   useEffect(() => {
     const stored = localStorage.getItem("passengers");
     if (stored) {
-      // Hanya ambil penumpang yang datanya tidak kosong
       const filtered = JSON.parse(stored).filter(
         (p: Passenger) => p.name.trim() !== "" && p.idNumber.trim() !== ""
       );
@@ -29,10 +28,12 @@ export default function InformasiPenumpangPage() {
     }
   }, []);
 
-  // Filter penumpang berdasarkan searchTerm
-  const filteredPassengers = passengers.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter dengan simpan index asli
+  const filteredPassengers = passengers
+    .map((p, originalIndex) => ({ ...p, originalIndex }))
+    .filter((p) =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -78,12 +79,12 @@ export default function InformasiPenumpangPage() {
               : "Belum ada penumpang yang ditambahkan"}
           </p>
         ) : (
-          filteredPassengers.map((p, index) => (
+          filteredPassengers.map((p, idx) => (
             <div
-              key={index}
+              key={idx}
               className="flex justify-between items-center border-b py-4 cursor-pointer"
               onClick={() =>
-                router.push(`/customer/mobil/penumpang/edit?index=${index}`)
+                router.push(`/customer/mobil/penumpang/edit?index=${p.originalIndex}`)
               }
             >
               <div>

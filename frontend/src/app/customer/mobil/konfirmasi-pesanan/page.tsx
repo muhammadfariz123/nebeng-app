@@ -11,7 +11,7 @@ return (
 {/* Ilustrasi */}
 <div className="mb-6">
 <Image
-src="/confirm.png" // Pastikan kamu sudah punya gambar ini di public/
+src="/confirm.svg" // Pastikan kamu sudah punya gambar ini di public/
 alt="Konfirmasi Pesanan"
 width={220}
 height={220}
@@ -34,7 +34,7 @@ className="mx-auto"
     </button>
 
     <button
-      onClick={() => router.push('/customer/barang-umum/konfirmasi-pembayaran')}
+      onClick={() => router.push('/customer/mobil/konfirmasi-pembayaran')}
       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm"
     >
       Lanjut Bayar

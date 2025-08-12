@@ -1,12 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  ArrowRight,
+  Clock,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function PembayaranBarangPage() {
   const [secondsLeft, setSecondsLeft] = useState(3600);
+  const [showDetail, setShowDetail] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -28,6 +37,12 @@ export default function PembayaranBarangPage() {
   };
 
   const [hh, mm, ss] = formatTime(secondsLeft);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText("202398719029109");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-800 flex flex-col">
@@ -58,8 +73,11 @@ export default function PembayaranBarangPage() {
       </div>
 
       {/* Batas waktu pembayaran */}
-      <div className="bg-orange-100 border-l-4 border-orange-500 mx-4 mt-4 p-3 rounded">
-        <p className="text-sm text-orange-700">
+      <div className="mx-4 mt-4 bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-3">
+        <div className="bg-orange-100 p-2 rounded-full flex items-center justify-center">
+          <Clock className="w-5 h-5 text-orange-500" />
+        </div>
+        <p className="text-sm text-orange-700 leading-snug">
           Selesaikan pembayaran sebelum{" "}
           <span className="font-bold">10:30 14 September 2024</span>
         </p>
@@ -70,7 +88,16 @@ export default function PembayaranBarangPage() {
         <p className="text-sm text-gray-500 mb-1">Total yang harus dibayar</p>
         <p className="text-xl font-bold mb-3">Rp 50.000</p>
         <p className="text-sm text-gray-500 mb-1">Kode Pembayaran</p>
-        <p className="text-lg font-mono font-bold">202398719029109</p>
+        <div className="flex items-center gap-2">
+          <p className="text-lg font-mono font-bold">202398719029109</p>
+          <button
+            onClick={handleCopy}
+            className="p-1 rounded hover:bg-gray-100 transition"
+          >
+            <Copy className="w-4 h-4 text-gray-600" />
+          </button>
+          {copied && <span className="text-xs text-green-600">Tersalin!</span>}
+        </div>
         <div className="flex items-center mt-2">
           <Image src="/bni.png" alt="BNI" width={32} height={32} />
           <span className="ml-2 text-sm font-semibold">
@@ -79,14 +106,51 @@ export default function PembayaranBarangPage() {
         </div>
       </div>
 
-      {/* Detail pengiriman */}
-      <div className="mx-4 mt-4 p-4 border rounded-lg">
-        <p className="text-sm text-gray-500">
-          Sabtu, 14 September 2024 • 07.00 - 09.30
-        </p>
-        <p className="mt-1 font-semibold">YOG POS 2 → SOLO POS 1</p>
-        <p className="text-sm text-gray-600">DAIHATSU AYLA</p>
-        <p className="text-xs text-gray-500">Barang Besar</p>
+      {/* Ringkasan Pengiriman */}
+      <div className="bg-white border rounded-xl shadow-sm mt-4 mx-4">
+        <button
+          onClick={() => setShowDetail(!showDetail)}
+          className="w-full flex flex-col items-start p-4"
+        >
+          <div className="text-xs text-gray-500 mb-1">
+            Sabtu, 14 September 2024 • 07.00 - 09.30
+          </div>
+
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-bold text-gray-800">YOG POS 2</span>
+            <ArrowRight className="w-5 h-5 text-blue-600" />
+            <span className="text-sm font-bold text-gray-800">SOLO POS 1</span>
+          </div>
+
+          <div className="text-xs text-gray-600">DAIHATSU AYLA</div>
+          <div className="text-xs text-gray-600">Barang Besar</div>
+
+          <div className="ml-auto">
+            {showDetail ? (
+              <ChevronUp className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            )}
+          </div>
+        </button>
+
+        {showDetail && (
+          <div className="px-4 pb-4 space-y-4">
+            <div className="border rounded-lg p-3 text-sm bg-gray-50">
+              <p className="font-medium text-gray-800">NADYA AMALYA FATHONI</p>
+              <p className="text-xs text-gray-500">Pengirim</p>
+              <div className="bg-white border rounded-lg p-2 text-xs mt-2">
+                Potensi mendapatkan{" "}
+                <span className="text-blue-600 font-medium">15 Poin</span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-sm pt-2 border-t">
+              <p className="text-gray-600">Total</p>
+              <p className="font-bold text-gray-900">Rp 50.000</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tombol */}
