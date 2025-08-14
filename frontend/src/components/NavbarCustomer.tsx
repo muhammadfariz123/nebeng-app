@@ -1,24 +1,35 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ChevronDownIcon, UserIcon, BellIcon, LogOutIcon } from 'lucide-react'
-import Image from 'next/image'
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react"
+import { ChevronDownIcon, UserIcon, BellIcon, LogOutIcon, MenuIcon } from "lucide-react"
+import Image from "next/image"
 
-export default function NavbarCustomer() {
-  const [customerName] = useState('Putri Ayu') // Ganti dengan data dari auth session
+export default function NavbarCustomer({
+  setSidebarOpen,
+}: {
+  setSidebarOpen: (open: boolean) => void
+}) {
+  const [customerName] = useState("Putri Ayu")
   const router = useRouter()
 
   const handleLogout = () => {
-    // TODO: Tambahkan fungsi logout
-    router.push('/login')
+    router.push("/login")
   }
 
   return (
     <div className="w-full bg-white shadow-sm px-6 py-3 flex justify-between items-center">
-      {/* Logo atau Judul */}
-      <div className="text-xl font-bold text-primary">Nebeng</div>
+      {/* Left: Tombol toggle sidebar di mobile */}
+      <div className="flex items-center gap-3">
+        <button
+          className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <MenuIcon className="w-6 h-6 text-gray-700" />
+        </button>
+        <div className="text-xl font-bold text-primary">Nebeng</div>
+      </div>
 
       {/* Right: Notification dan Dropdown */}
       <div className="flex items-center gap-4">
@@ -45,9 +56,9 @@ export default function NavbarCustomer() {
             <MenuItem>
               {({ active }) => (
                 <button
-                  onClick={() => router.push('/customer/profile')}
+                  onClick={() => router.push("/customer/profile")}
                   className={`w-full text-left px-4 py-2 text-sm ${
-                    active ? 'bg-gray-100' : ''
+                    active ? "bg-gray-100" : ""
                   } flex items-center gap-2`}
                 >
                   <UserIcon className="w-4 h-4" />
@@ -60,7 +71,7 @@ export default function NavbarCustomer() {
                 <button
                   onClick={handleLogout}
                   className={`w-full text-left px-4 py-2 text-sm text-red-600 ${
-                    active ? 'bg-gray-100' : ''
+                    active ? "bg-gray-100" : ""
                   } flex items-center gap-2`}
                 >
                   <LogOutIcon className="w-4 h-4" />

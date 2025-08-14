@@ -92,8 +92,16 @@ export default function CustomerHomePage() {
   return (
     <div className="space-y-6">
       {/* Header Welcome */}
-      <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6 shadow-md">
-        <div className="flex justify-between items-start">
+      <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6 shadow-md overflow-hidden">
+        {/* Gambar Background */}
+        <Image
+          src="/bgprf.png"
+          alt="Background Header"
+          fill
+          className="object-cover opacity-20"
+        />
+
+        <div className="relative z-10 flex justify-between items-start">
           <div>
             <p className="text-sm">Selamat Siang,</p>
             <h1 className="text-lg font-bold">
@@ -110,7 +118,7 @@ export default function CustomerHomePage() {
         </div>
 
         {/* Poin Box */}
-        <div className="absolute left-6 right-6 top-28">
+        <div className="absolute left-6 right-6 top-28 z-10">
           <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
             <div className="text-gray-800 font-medium">Poin saya</div>
             <div className="text-red-500 font-bold text-xl">

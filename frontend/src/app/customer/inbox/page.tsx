@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function InboxPage() {
   const router = useRouter();
@@ -9,11 +11,17 @@ export default function InboxPage() {
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex items-center px-4 py-3 border-b border-gray-200">
-        <button onClick={() => router.back()} className="mr-3 text-lg">
-          ←
-        </button>
-        <h1 className="text-lg font-semibold flex-1 text-center">Inbox</h1>
+      <div className="px-6 pt-4 flex items-center border-b border-gray-200 pb-3">
+        <Link
+          href="/customer"
+          className="text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-full transition"
+          aria-label="Kembali ke beranda customer"
+        >
+          <ArrowLeft size={24} />
+        </Link>
+        <h1 className="text-lg font-semibold flex-1 text-center text-gray-800">
+          Inbox
+        </h1>
       </div>
 
       {/* Tab */}
@@ -27,7 +35,7 @@ export default function InboxPage() {
       {/* Konten Kosong */}
       <div className="flex flex-col items-center justify-center flex-1 p-6 text-center">
         <Image
-          src="/inbox.png" // Pastikan file ada di folder public/
+          src="/inbox.png"
           alt="Empty Notification"
           width={200}
           height={200}
