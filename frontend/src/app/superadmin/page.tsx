@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -13,52 +14,55 @@ import {
 } from '@/components/ui/table'
 import { Users, MapPin, DollarSign, CreditCard } from 'lucide-react'
 
-// Komponen terpisah
 import BookingChart from '@/components/BookingChart'
 import PassengerBookingTable from '@/components/PassengerBookingTable'
 import GoodsBookingTable from '@/components/GoodsBookingTable'
 
+// Definisi tipe data
+interface DashboardStats {
+  users: number
+  terminals: number
+  transactions: number
+  totalCommission: number
+}
+
+interface Transaction {
+  id: string
+  customer: string
+  amount: number
+  date: string
+  status: string
+}
+
+interface DashboardResponse {
+  stats: DashboardStats
+  recentTransactions: Transaction[]
+}
+
 export default function SuperadminHome() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     users: 0,
     terminals: 0,
     transactions: 0,
     totalCommission: 0,
   })
 
-  const recentTransactions = [
-    {
-      id: 'TX001',
-      customer: 'Andi Wijaya',
-      amount: 50000,
-      date: '2025-07-31',
-      status: 'Diterima',
-    },
-    {
-      id: 'TX002',
-      customer: 'Siti Nurhaliza',
-      amount: 120000,
-      date: '2025-07-30',
-      status: 'Pending',
-    },
-    {
-      id: 'TX003',
-      customer: 'Budi Santoso',
-      amount: 75000,
-      date: '2025-07-30',
-      status: 'Diterima',
-    },
-  ]
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
-    setTimeout(() => {
-      setStats({
-        users: 1250,
-        terminals: 42,
-        transactions: 889,
-        totalCommission: 15350000,
-      })
-    }, 500)
+    const fetchData = async () => {
+      try {
+        const res = await axios.get<DashboardResponse>(
+          'http://localhost:3001/superadmin/dashboard'
+        )
+        setStats(res.data.stats)
+        setRecentTransactions(res.data.recentTransactions)
+      } catch (error) {
+        console.error('Gagal mengambil data dashboard:', error)
+      }
+    }
+
+    fetchData()
   }, [])
 
   return (

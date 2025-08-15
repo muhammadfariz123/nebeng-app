@@ -1,71 +1,65 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { UserRound } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { UserRound, Trash2, Edit } from 'lucide-react';
 
-type UserType = 'Superadmin' | 'Admin' | 'Finance' | 'Customer' | 'Driver'
+type UserType = 'Superadmin' | 'Admin' | 'Finance' | 'Customer' | 'Driver';
 
 interface UserData {
-  id: number
-  username: string
-  email: string
-  user_type: UserType
-  banned: boolean
-  created_at: string
-  profile_name: string
-  telephone: string
-  region: string
+  id: number;
+  username: string;
+  email: string;
+  user_type: UserType;
+  banned: boolean;
+  created_at: string;
 }
 
 export default function SuperadminUsersPage() {
-  const [users, setUsers] = useState<UserData[]>([])
+  const [users, setUsers] = useState<UserData[]>([]);
 
-  // Simulasi fetch dari backend
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get<UserData[]>('http://localhost:3001/users');
+      setUsers(res.data);
+    } catch (err) {
+      toast.error('Gagal mengambil data pengguna');
+    }
+  };
+
+  const deleteUser = async (id: number) => {
+    if (!confirm('Yakin mau hapus user ini?')) return;
+    try {
+      await axios.delete(`http://localhost:3001/users/${id}`);
+      toast.success('User berhasil dihapus');
+      fetchUsers();
+    } catch (err) {
+      toast.error('Gagal menghapus user');
+    }
+  };
+
+  const updateUser = async (id: number, banned: boolean) => {
+    try {
+      await axios.put(`http://localhost:3001/users/${id}`, { banned: !banned });
+      toast.success('Status user diperbarui');
+      fetchUsers();
+    } catch (err) {
+      toast.error('Gagal update user');
+    }
+  };
+
   useEffect(() => {
-    // Ganti dengan fetch API ke backend-mu (GET /api/users)
-    const dummyData: UserData[] = [
-      {
-        id: 1,
-        username: 'superadmin1',
-        email: 'super@nebeng.com',
-        user_type: 'Superadmin',
-        banned: false,
-        created_at: '2024-01-01',
-        profile_name: 'Dina Utami',
-        telephone: '-',
-        region: '-',
-      },
-      {
-        id: 2,
-        username: 'admin_jkt',
-        email: 'admin@jakarta.com',
-        user_type: 'Admin',
-        banned: false,
-        created_at: '2024-03-11',
-        profile_name: 'Budi Siregar',
-        telephone: '082212312312',
-        region: 'DKI Jakarta - Jakarta Pusat - Tanah Abang',
-      },
-      {
-        id: 3,
-        username: 'joko_driver',
-        email: 'joko@driver.com',
-        user_type: 'Driver',
-        banned: false,
-        created_at: '2025-04-10',
-        profile_name: 'Joko Santoso',
-        telephone: '081234567890',
-        region: 'Jawa Barat - Bandung - Cibiru',
-      },
-    ]
-    setUsers(dummyData)
-  }, [])
+    fetchUsers();
+  }, []);
 
   return (
     <div className="p-6">
+      <Toaster />
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
         <UserRound className="text-primary w-6 h-6" /> Kelola Pengguna
       </h1>
@@ -79,11 +73,9 @@ export default function SuperadminUsersPage() {
                 <TableHead>Username</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Tipe</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>Telepon</TableHead>
-                <TableHead>Wilayah</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Dibuat</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -95,17 +87,24 @@ export default function SuperadminUsersPage() {
                   <TableCell>
                     <Badge variant="outline">{user.user_type}</Badge>
                   </TableCell>
-                  <TableCell>{user.profile_name}</TableCell>
-                  <TableCell>{user.telephone}</TableCell>
-                  <TableCell>{user.region}</TableCell>
                   <TableCell>
-                    {user.banned ? (
-                      <Badge variant="destructive">Banned</Badge>
-                    ) : (
-                      <Badge variant="default">Aktif</Badge>
-                    )}
+                    <Badge
+                      variant={user.banned ? 'destructive' : 'default'}
+                      onClick={() => updateUser(user.id, user.banned)}
+                      className="cursor-pointer"
+                    >
+                      {user.banned ? 'Banned' : 'Aktif'}
+                    </Badge>
                   </TableCell>
-                  <TableCell>{user.created_at}</TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => updateUser(user.id, user.banned)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => deleteUser(user.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -113,5 +112,5 @@ export default function SuperadminUsersPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
