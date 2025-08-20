@@ -1,12 +1,13 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Put, 
-  Delete, 
-  Body, 
-  Param, 
-  Query 
+// src/superadmin/superadmin.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
 } from '@nestjs/common';
 import { SuperadminService } from './superadmin.service';
 
@@ -17,43 +18,43 @@ export class SuperadminController {
   // === DASHBOARD ===
   @Get('dashboard')
   async getDashboard() {
-    return await this.superadminService.getDashboard();
+    return this.superadminService.getDashboard();
   }
 
   // === TERMINALS ===
   @Get('terminals')
   async getTerminals() {
-    return await this.superadminService.getTerminals();
+    return this.superadminService.getTerminals();
   }
 
   @Post('terminals')
   async createTerminal(@Body() data: any) {
-    return await this.superadminService.createTerminal(data);
+    return this.superadminService.createTerminal(data);
   }
 
   @Put('terminals/:id')
   async updateTerminal(@Param('id') id: string, @Body() data: any) {
-    return await this.superadminService.updateTerminal(+id, data);
+    return this.superadminService.updateTerminal(Number(id), data);
   }
 
   @Delete('terminals/:id')
   async deleteTerminal(@Param('id') id: string) {
-    return await this.superadminService.deleteTerminal(+id);
+    return this.superadminService.deleteTerminal(Number(id));
   }
 
-  // === LOKASI ===
+  // === WILAYAH ===
   @Get('provinces')
   async getProvinces() {
-    return await this.superadminService.getProvinces();
+    return this.superadminService.getProvinces();
   }
 
   @Get('regencies')
   async getRegencies(@Query('provinceId') provinceId: string) {
-    return await this.superadminService.getRegencies(+provinceId);
+    return this.superadminService.getRegencies(Number(provinceId));
   }
 
   @Get('districts')
   async getDistricts(@Query('regencyId') regencyId: string) {
-    return await this.superadminService.getDistricts(+regencyId);
+    return this.superadminService.getDistricts(Number(regencyId));
   }
 }

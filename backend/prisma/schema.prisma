@@ -15,13 +15,11 @@ enum user_types {
   Driver
 }
 
-/// ENUM terminal
 enum terminal_types {
   Public
   Private
 }
 
-/// ENUM subtype publik (pakai identifier tanpa spasi, map ke string DB pakai @map)
 enum public_terminal_subtypes {
   TERMINAL_BIS      @map("Terminal Bis")
   STASIUN_KERETA    @map("Stasiun Kereta")
@@ -39,61 +37,23 @@ model User {
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
 
-  // relasi
   passengerTransactions PassengerTransaction[]
   goodsTransactions     GoodsTransaction[]
 }
 
-model Province {
-  id         Int       @id @default(autoincrement())
-  name       String
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  regencies  Regency[]
-  terminals  Terminal[]
-}
-
-model Regency {
-  id          Int       @id @default(autoincrement())
-  province_id Int
-  name        String
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
-
-  province Province @relation(fields: [province_id], references: [id], onDelete: Cascade)
-  districts District[]
-  terminals Terminal[]
-}
-
-model District {
-  id         Int       @id @default(autoincrement())
-  regency_id Int
-  name       String
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  regency   Regency  @relation(fields: [regency_id], references: [id], onDelete: Cascade)
-  terminals Terminal[]
-}
-
 model Terminal {
-  id                       Int       @id @default(autoincrement())
-  name                     String
-  terminal_type            terminal_types
-  public_terminal_subtype  public_terminal_subtypes?
-  province_id              Int
-  regency_id               Int
-  district_id              Int
-  full_address             String
-  longitude                String
-  latitude                 String
-  created_at               DateTime  @default(now())
-  updated_at               DateTime  @updatedAt
-
-  province Province @relation(fields: [province_id], references: [id])
-  regency  Regency  @relation(fields: [regency_id], references: [id])
-  district District @relation(fields: [district_id], references: [id])
+  id                      Int       @id @default(autoincrement())
+  name                    String
+  terminal_type           terminal_types
+  public_terminal_subtype public_terminal_subtypes?
+  province_name           String
+  regency_name            String
+  district_name           String
+  full_address            String
+  latitude                String?
+  longitude               String?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
 }
 
 model PassengerTransaction {
@@ -121,4 +81,30 @@ model GoodsTransaction {
 model DriverCommission {
   id     Int @id @default(autoincrement())
   income Int
+}
+
+//
+// Tambahkan table untuk lokasi
+//
+model Province {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  regencies Regency[]
+}
+
+model Regency {
+  id          Int    @id @default(autoincrement())
+  name        String
+  province_id Int
+  province    Province @relation(fields: [province_id], references: [id])
+
+  districts District[]
+}
+
+model District {
+  id         Int    @id @default(autoincrement())
+  name       String
+  regency_id Int
+  regency    Regency @relation(fields: [regency_id], references: [id])
 }

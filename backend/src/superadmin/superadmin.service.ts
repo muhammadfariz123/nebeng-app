@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+// src/superadmin/superadmin.service.ts
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PrismaClient, terminal_types, public_terminal_subtypes } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -64,18 +65,58 @@ export class SuperadminService {
   // === TERMINALS ===
   async getTerminals() {
     return prisma.terminal.findMany({
-      include: {
-        province: true,
-        regency: true,
-        district: true,
-      },
+      orderBy: { created_at: 'desc' },
     });
   }
 
   async createTerminal(data: any) {
-    return prisma.terminal.create({ data });
+    const {
+      name,
+      terminal_type,
+      public_terminal_subtype,
+      full_address,
+      latitude,
+      longitude,
+      province_name,
+      regency_name,
+      district_name,
+    } = data ?? {};
+
+    if (!name || !terminal_type || !full_address) {
+      throw new BadRequestException('name, terminal_type, full_address wajib diisi');
+    }
+    if (!province_name || !regency_name || !district_name) {
+      throw new BadRequestException('province_name, regency_name, district_name wajib diisi');
+    }
+
+    if (!Object.values(terminal_types).includes(terminal_type)) {
+      throw new BadRequestException('terminal_type tidak valid');
+    }
+    if (
+      terminal_type === 'Public' &&
+      public_terminal_subtype &&
+      !Object.values(public_terminal_subtypes).includes(public_terminal_subtype)
+    ) {
+      throw new BadRequestException('public_terminal_subtype tidak valid');
+    }
+
+    return prisma.terminal.create({
+      data: {
+        name,
+        terminal_type,
+        public_terminal_subtype:
+          terminal_type === 'Public' ? public_terminal_subtype ?? null : null,
+        province_name,
+        regency_name,
+        district_name,
+        full_address,
+        longitude: longitude ? String(longitude) : '',
+        latitude: latitude ? String(latitude) : '',
+      },
+    });
   }
 
+  // === UPDATE TERMINAL ===
   async updateTerminal(id: number, data: any) {
     return prisma.terminal.update({
       where: { id },
@@ -83,24 +124,29 @@ export class SuperadminService {
     });
   }
 
+  // === DELETE TERMINAL ===
   async deleteTerminal(id: number) {
-    return prisma.terminal.delete({ where: { id } });
+    return prisma.terminal.delete({
+      where: { id },
+    });
   }
 
   // === LOKASI ===
   async getProvinces() {
-    return prisma.province.findMany();
+    return prisma.province.findMany({ orderBy: { name: 'asc' } });
   }
 
   async getRegencies(provinceId: number) {
     return prisma.regency.findMany({
       where: { province_id: provinceId },
+      orderBy: { name: 'asc' },
     });
   }
 
   async getDistricts(regencyId: number) {
     return prisma.district.findMany({
       where: { regency_id: regencyId },
+      orderBy: { name: 'asc' },
     });
   }
 }
