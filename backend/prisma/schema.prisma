@@ -172,3 +172,11 @@ model GoodsPricing {
   departure_terminal Terminal @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
   arrival_terminal   Terminal @relation("GoodsArrivalPricing",   fields: [arrival_terminal_id],   references: [id])
 }
+
+model Slider {
+  id        Int      @id @default(autoincrement())
+  slider_img String
+  is_active  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
