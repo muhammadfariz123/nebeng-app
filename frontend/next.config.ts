@@ -1,17 +1,26 @@
-import type { NextConfig } from "next"
-import { NextConfig as NextConfigType } from "next"
-import { join } from "path"
+import type { NextConfig } from "next";
+import { join } from "path";
 
-const nextConfig: NextConfigType = {
+const nextConfig: NextConfig = {
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
       issuer: /\.(js|ts)x?$/,
       use: ['@svgr/webpack'],
-    })
+    });
 
-    return config
+    return config;
   },
-}
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
+};
 
-export default nextConfig
+export default nextConfig;
