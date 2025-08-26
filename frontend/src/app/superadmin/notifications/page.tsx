@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { BellIcon } from 'lucide-react'
-import axios from 'axios'
 
 type Notification = {
   id: number
@@ -15,70 +16,79 @@ type Notification = {
   created_at: string
 }
 
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(false)
+
+  const fetchList = async () => {
+    setLoading(true)
+    try {
+      const res = await axios.get<Notification[]>(`${BACKEND}/superadmin/notifications`)
+      setNotifications(res.data)
+    } catch (err) {
+      console.error(err)
+      setNotifications([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    axios
-      .get<Notification[]>('/api/notifications')
-      .then((res) => {
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setNotifications(res.data)
-        } else {
-          // Gunakan dummy jika kosong
-          setNotifications([
-            {
-              id: 1,
-              user_id: 101,
-              message: 'Pembayaran untuk pesanan #INV-001 telah diterima.',
-              is_read: false,
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 2,
-              user_id: 102,
-              message: 'Akun Anda berhasil diverifikasi.',
-              is_read: true,
-              created_at: new Date(Date.now() - 86400000).toISOString(), // kemarin
-            },
-            {
-              id: 3,
-              user_id: 103,
-              message: 'Permintaan tarik saldo telah diterima.',
-              is_read: false,
-              created_at: new Date(Date.now() - 3600000).toISOString(), // 1 jam lalu
-            },
-          ])
-        }
-      })
-      .catch((err) => {
-        console.error('Gagal memuat notifikasi:', err)
-        // Tampilkan dummy data saat gagal fetch
-        setNotifications([
-          {
-            id: 1,
-            user_id: 101,
-            message: 'Gagal ambil notifikasi dari server, ini dummy.',
-            is_read: false,
-            created_at: new Date().toISOString(),
-          },
-        ])
-      })
+    fetchList()
   }, [])
+
+  const markRead = async (id: number) => {
+    try {
+      await axios.put(`${BACKEND}/superadmin/notifications/${id}/read`)
+      setNotifications((s) => s.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+    } catch (err) {
+      console.error(err)
+      alert('Gagal menandai terbaca')
+    }
+  }
+
+  const remove = async (id: number) => {
+    if (!confirm('Hapus notifikasi ini?')) return
+    try {
+      await axios.delete(`${BACKEND}/superadmin/notifications/${id}`)
+      setNotifications((s) => s.filter((n) => n.id !== id))
+    } catch (err) {
+      console.error(err)
+      alert('Gagal menghapus')
+    }
+  }
+
+  const markAllRead = async () => {
+    try {
+      await axios.put(`${BACKEND}/superadmin/notifications/mark-all-read`)
+      setNotifications((s) => s.map((n) => ({ ...n, is_read: true })))
+    } catch (err) {
+      console.error(err)
+      alert('Gagal menandai semua')
+    }
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
         <BellIcon className="w-6 h-6" /> Notifikasi Pengguna
       </h1>
+
+      <div className="flex gap-2 mb-4">
+        <Button onClick={fetchList} disabled={loading}>{loading ? 'Memuat...' : 'Muat Ulang'}</Button>
+        <Button onClick={markAllRead} variant="outline">Tandai Semua Dibaca</Button>
+      </div>
+
       <div className="grid gap-4">
+        {notifications.length === 0 && <div className="text-sm text-gray-500">Belum ada notifikasi</div>}
+
         {notifications.map((notif) => (
           <Card
             key={notif.id}
             className={cn(
-              notif.is_read
-                ? 'opacity-60'
-                : 'border-l-4 border-blue-500 shadow-sm'
+              notif.is_read ? 'opacity-60' : 'border-l-4 border-blue-500 shadow-sm'
             )}
           >
             <CardContent className="p-4">
@@ -89,9 +99,16 @@ export default function NotificationPage() {
                     {new Date(notif.created_at).toLocaleString()}
                   </p>
                 </div>
-                {!notif.is_read && (
-                  <Badge className="bg-blue-500 text-white">Baru</Badge>
-                )}
+
+                <div className="flex flex-col items-end gap-2">
+                  {!notif.is_read ? <Badge className="bg-blue-500 text-white">Baru</Badge> : null}
+                  <div className="flex gap-2">
+                    {!notif.is_read && (
+                      <Button size="sm" onClick={() => markRead(notif.id)}>Tandai Dibaca</Button>
+                    )}
+                    <Button size="sm" variant="destructive" onClick={() => remove(notif.id)}>Hapus</Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
