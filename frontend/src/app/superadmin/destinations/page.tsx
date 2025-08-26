@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,27 +10,60 @@ import { Card, CardContent } from '@/components/ui/card'
 interface PopularDestination {
   id: number
   title: string
-  destination_img: string
+  destination_img: string // contoh: "/uploads/destinations/xxx.jpg"
 }
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 
 export default function PopularDestinationsPage() {
   const [destinations, setDestinations] = useState<PopularDestination[]>([])
   const [newTitle, setNewTitle] = useState('')
   const [newImage, setNewImage] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const listUrl = useMemo(() => `${BACKEND_URL}/superadmin/popular-destinations`, [])
+  const absoluteImg = (path: string) =>
+    path.startsWith('http') ? path : `${BACKEND_URL}${path}`
 
   useEffect(() => {
-    // Simulasi fetch data
-    const dummy: PopularDestination[] = [
-      { id: 1, title: 'Bandara Soekarno Hatta', destination_img: '/demo1.jpg' },
-      { id: 2, title: 'Stasiun Gambir', destination_img: '/demo2.jpg' },
-    ]
-    setDestinations(dummy)
-  }, [])
+    const load = async () => {
+      const res = await fetch(listUrl, { cache: 'no-store' })
+      const data = await res.json()
+      setDestinations(data)
+    }
+    load()
+  }, [listUrl])
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!newTitle || !newImage) return alert('Lengkapi data!')
-    console.log('Upload tujuan:', newTitle, newImage.name)
-    // TODO: fetch POST ke backend
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('title', newTitle)
+      formData.append('destination_img', newImage)
+
+      const res = await fetch(listUrl, { method: 'POST', body: formData })
+      if (!res.ok) throw new Error('Gagal upload')
+
+      const created = await res.json()
+      setDestinations((prev) => [created, ...prev])
+      setNewTitle('')
+      setNewImage(null)
+    } catch (e: any) {
+      alert(e.message || 'Upload gagal')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Yakin hapus?')) return
+    const res = await fetch(`${listUrl}/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setDestinations((prev) => prev.filter((d) => d.id !== id))
+    } else {
+      alert('Gagal hapus')
+    }
   }
 
   return (
@@ -41,7 +74,7 @@ export default function PopularDestinationsPage() {
         {destinations.map((dest) => (
           <Card key={dest.id} className="overflow-hidden">
             <Image
-              src={dest.destination_img}
+              src={absoluteImg(dest.destination_img)}
               alt={dest.title}
               width={300}
               height={200}
@@ -49,6 +82,14 @@ export default function PopularDestinationsPage() {
             />
             <CardContent className="p-4">
               <p className="text-center font-medium text-sm">{dest.title}</p>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="mt-2 w-full"
+                onClick={() => handleDelete(dest.id)}
+              >
+                Hapus
+              </Button>
             </CardContent>
           </Card>
         ))}
@@ -74,7 +115,9 @@ export default function PopularDestinationsPage() {
             />
           </div>
           <div className="flex items-end">
-            <Button onClick={handleUpload}>Tambah</Button>
+            <Button onClick={handleUpload} disabled={loading}>
+              {loading ? 'Mengunggah...' : 'Tambah'}
+            </Button>
           </div>
         </div>
       </div>
