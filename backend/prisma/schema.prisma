@@ -25,10 +25,10 @@ enum terminal_types {
 }
 
 enum public_terminal_subtypes {
-  TERMINAL_BIS      @map("Terminal Bis")
-  STASIUN_KERETA    @map("Stasiun Kereta")
-  BANDARA           @map("Bandara")
-  PELABUHAN         @map("Pelabuhan")
+  TERMINAL_BIS   @map("Terminal Bis")
+  STASIUN_KERETA @map("Stasiun Kereta")
+  BANDARA        @map("Bandara")
+  PELABUHAN      @map("Pelabuhan")
 }
 
 // Sudah ada
@@ -60,10 +60,11 @@ model User {
 
   passengerTransactions PassengerTransaction[]
   goodsTransactions     GoodsTransaction[]
+  Notification          Notification[]
 }
 
 model Terminal {
-  id                      Int       @id @default(autoincrement())
+  id                      Int                       @id @default(autoincrement())
   name                    String
   terminal_type           terminal_types
   public_terminal_subtype public_terminal_subtypes?
@@ -73,8 +74,8 @@ model Terminal {
   full_address            String
   latitude                String?
   longitude               String?
-  created_at              DateTime  @default(now())
-  updated_at              DateTime  @updatedAt
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @updatedAt
 
   // Relasi balik PassengerPricing (sudah ada)
   departure_pricings PassengerPricing[] @relation("DeparturePricing")
@@ -93,7 +94,7 @@ model PassengerTransaction {
   payment_status   String
 
   customer_id Int
-  customer   User @relation(fields: [customer_id], references: [id])
+  customer    User @relation(fields: [customer_id], references: [id])
 }
 
 model GoodsTransaction {
@@ -104,7 +105,7 @@ model GoodsTransaction {
   payment_status   String
 
   customer_id Int
-  customer   User @relation(fields: [customer_id], references: [id])
+  customer    User @relation(fields: [customer_id], references: [id])
 }
 
 model DriverCommission {
@@ -123,7 +124,7 @@ model Province {
 }
 
 model Regency {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   province_id Int
   province    Province @relation(fields: [province_id], references: [id])
@@ -132,7 +133,7 @@ model Regency {
 }
 
 model District {
-  id         Int    @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   name       String
   regency_id Int
   regency    Regency @relation(fields: [regency_id], references: [id])
@@ -142,39 +143,39 @@ model District {
 // PassengerPricing (sudah ada)
 //
 model PassengerPricing {
-  id                     Int           @id @default(autoincrement())
-  vehicle_type           vehicle_types
-  departure_terminal_id  Int
-  arrival_terminal_id    Int
-  price_per_seat         Float
-  commission_percentage  Float
-  created_at             DateTime      @default(now())
-  updated_at             DateTime      @updatedAt
+  id                    Int           @id @default(autoincrement())
+  vehicle_type          vehicle_types
+  departure_terminal_id Int
+  arrival_terminal_id   Int
+  price_per_seat        Float
+  commission_percentage Float
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
 
   departure_terminal Terminal @relation("DeparturePricing", fields: [departure_terminal_id], references: [id])
-  arrival_terminal   Terminal @relation("ArrivalPricing",   fields: [arrival_terminal_id],   references: [id])
+  arrival_terminal   Terminal @relation("ArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
 
 //
 // ✅ GoodsPricing (BARU)
 //
 model GoodsPricing {
-  id                     Int             @id @default(autoincrement())
-  transport_type         transport_types
-  departure_terminal_id  Int
-  arrival_terminal_id    Int
-  price_per_kg           Float
-  commission_percentage  Float
-  created_at             DateTime        @default(now())
-  updated_at             DateTime        @updatedAt
+  id                    Int             @id @default(autoincrement())
+  transport_type        transport_types
+  departure_terminal_id Int
+  arrival_terminal_id   Int
+  price_per_kg          Float
+  commission_percentage Float
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
 
   // Relasi ke Terminal
   departure_terminal Terminal @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
-  arrival_terminal   Terminal @relation("GoodsArrivalPricing",   fields: [arrival_terminal_id],   references: [id])
+  arrival_terminal   Terminal @relation("GoodsArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
 
 model Slider {
-  id        Int      @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   slider_img String
   is_active  Boolean  @default(false)
   created_at DateTime @default(now())
@@ -187,4 +188,14 @@ model PopularDestination {
   destination_img String
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
