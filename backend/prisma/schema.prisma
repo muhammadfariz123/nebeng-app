@@ -180,3 +180,11 @@ model Slider {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model PopularDestination {
+  id              Int      @id @default(autoincrement())
+  title           String
+  destination_img String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}

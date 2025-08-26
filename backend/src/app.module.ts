@@ -10,6 +10,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PopularDestinationsModule } from './superadmin/popular-destinations/popular-destinations.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { join } from 'path';
     GoodsPricingModule,
     SlidersModule,
     PrismaModule,
+    PopularDestinationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
