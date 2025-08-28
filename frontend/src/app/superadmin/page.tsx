@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -13,53 +14,77 @@ import {
 } from '@/components/ui/table'
 import { Users, MapPin, DollarSign, CreditCard } from 'lucide-react'
 
-// Komponen terpisah
 import BookingChart from '@/components/BookingChart'
 import PassengerBookingTable from '@/components/PassengerBookingTable'
 import GoodsBookingTable from '@/components/GoodsBookingTable'
 
+// Definisi tipe data sesuai response backend
+interface DashboardStats {
+  users: number
+  terminals: number
+  transactions: number
+  totalCommission: number
+}
+
+interface Transaction {
+  id: string
+  customer: string
+  amount: number
+  date: string
+  status: string
+}
+
+interface DashboardResponse {
+  stats: DashboardStats
+  recentTransactions: Transaction[]
+}
+
 export default function SuperadminHome() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     users: 0,
     terminals: 0,
     transactions: 0,
     totalCommission: 0,
   })
-
-  const recentTransactions = [
-    {
-      id: 'TX001',
-      customer: 'Andi Wijaya',
-      amount: 50000,
-      date: '2025-07-31',
-      status: 'Diterima',
-    },
-    {
-      id: 'TX002',
-      customer: 'Siti Nurhaliza',
-      amount: 120000,
-      date: '2025-07-30',
-      status: 'Pending',
-    },
-    {
-      id: 'TX003',
-      customer: 'Budi Santoso',
-      amount: 75000,
-      date: '2025-07-30',
-      status: 'Diterima',
-    },
-  ]
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setTimeout(() => {
-      setStats({
-        users: 1250,
-        terminals: 42,
-        transactions: 889,
-        totalCommission: 15350000,
-      })
-    }, 500)
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const res = await axios.get<DashboardResponse>(
+          'http://localhost:3001/superadmin/dashboard'
+        )
+        setStats(res.data.stats)
+        setRecentTransactions(res.data.recentTransactions)
+      } catch (err) {
+        console.error('Gagal mengambil data dashboard:', err)
+        setError('Tidak dapat mengambil data dashboard.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <p>Sedang memuat data dashboard...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-500">
+        <p>{error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-10">
@@ -141,7 +166,13 @@ export default function SuperadminHome() {
                     <TableCell>{tx.id}</TableCell>
                     <TableCell>{tx.customer}</TableCell>
                     <TableCell>Rp {tx.amount.toLocaleString()}</TableCell>
-                    <TableCell>{tx.date}</TableCell>
+                    <TableCell>
+                      {new Date(tx.date).toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={tx.status === 'Diterima' ? 'default' : 'outline'}>
                         {tx.status}

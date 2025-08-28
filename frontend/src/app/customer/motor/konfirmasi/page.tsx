@@ -11,7 +11,7 @@ return (
 {/* Ilustrasi */}
 <div className="mb-6">
 <Image
-src="/confirm.png" // Pastikan kamu sudah punya gambar ini di public/
+src="/confirm.svg" // Pastikan kamu sudah punya gambar ini di public/
 alt="Konfirmasi Pesanan"
 width={220}
 height={220}

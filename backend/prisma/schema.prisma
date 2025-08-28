@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -7,6 +8,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
+//
+// ENUMS
+//
 enum user_types {
   Superadmin
   Admin
@@ -15,13 +19,183 @@ enum user_types {
   Driver
 }
 
+enum terminal_types {
+  Public
+  Private
+}
+
+enum public_terminal_subtypes {
+  TERMINAL_BIS   @map("Terminal Bis")
+  STASIUN_KERETA @map("Stasiun Kereta")
+  BANDARA        @map("Bandara")
+  PELABUHAN      @map("Pelabuhan")
+}
+
+// Sudah ada
+enum vehicle_types {
+  Car
+  Motorbike
+  Bus
+  Train
+}
+
+// ✅ Tambahan untuk Goods Pricing
+enum transport_types {
+  Sendiri
+  Umum
+}
+
+//
+// MODELS
+//
 model User {
-  id        Int        @id @default(autoincrement())
-  username  String     @unique
-  email     String     @unique
-  password  String
-  user_type user_types
-  banned    Boolean    @default(false)
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  email      String     @unique
+  password   String
+  user_type  user_types
+  banned     Boolean    @default(false)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+
+  passengerTransactions PassengerTransaction[]
+  goodsTransactions     GoodsTransaction[]
+  Notification          Notification[]
+}
+
+model Terminal {
+  id                      Int                       @id @default(autoincrement())
+  name                    String
+  terminal_type           terminal_types
+  public_terminal_subtype public_terminal_subtypes?
+  province_name           String
+  regency_name            String
+  district_name           String
+  full_address            String
+  latitude                String?
+  longitude               String?
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @updatedAt
+
+  // Relasi balik PassengerPricing (sudah ada)
+  departure_pricings PassengerPricing[] @relation("DeparturePricing")
+  arrival_pricings   PassengerPricing[] @relation("ArrivalPricing")
+
+  // ✅ Relasi balik GoodsPricing (TAMBAHAN)
+  goods_departure_pricings GoodsPricing[] @relation("GoodsDeparturePricing")
+  goods_arrival_pricings   GoodsPricing[] @relation("GoodsArrivalPricing")
+}
+
+model PassengerTransaction {
+  id               Int      @id @default(autoincrement())
+  created_at       DateTime @default(now())
+  transaction_date DateTime @default(now())
+  total_amount     Int
+  payment_status   String
+
+  customer_id Int
+  customer    User @relation(fields: [customer_id], references: [id])
+}
+
+model GoodsTransaction {
+  id               Int      @id @default(autoincrement())
+  created_at       DateTime @default(now())
+  transaction_date DateTime @default(now())
+  total_amount     Int
+  payment_status   String
+
+  customer_id Int
+  customer    User @relation(fields: [customer_id], references: [id])
+}
+
+model DriverCommission {
+  id     Int @id @default(autoincrement())
+  income Int
+}
+
+//
+// Lokasi
+//
+model Province {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  regencies Regency[]
+}
+
+model Regency {
+  id          Int      @id @default(autoincrement())
+  name        String
+  province_id Int
+  province    Province @relation(fields: [province_id], references: [id])
+
+  districts District[]
+}
+
+model District {
+  id         Int     @id @default(autoincrement())
+  name       String
+  regency_id Int
+  regency    Regency @relation(fields: [regency_id], references: [id])
+}
+
+//
+// PassengerPricing (sudah ada)
+//
+model PassengerPricing {
+  id                    Int           @id @default(autoincrement())
+  vehicle_type          vehicle_types
+  departure_terminal_id Int
+  arrival_terminal_id   Int
+  price_per_seat        Float
+  commission_percentage Float
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  departure_terminal Terminal @relation("DeparturePricing", fields: [departure_terminal_id], references: [id])
+  arrival_terminal   Terminal @relation("ArrivalPricing", fields: [arrival_terminal_id], references: [id])
+}
+
+//
+// ✅ GoodsPricing (BARU)
+//
+model GoodsPricing {
+  id                    Int             @id @default(autoincrement())
+  transport_type        transport_types
+  departure_terminal_id Int
+  arrival_terminal_id   Int
+  price_per_kg          Float
+  commission_percentage Float
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  // Relasi ke Terminal
+  departure_terminal Terminal @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
+  arrival_terminal   Terminal @relation("GoodsArrivalPricing", fields: [arrival_terminal_id], references: [id])
+}
+
+model Slider {
+  id         Int      @id @default(autoincrement())
+  slider_img String
+  is_active  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model PopularDestination {
+  id              Int      @id @default(autoincrement())
+  title           String
+  destination_img String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  message    String
+  is_read    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }

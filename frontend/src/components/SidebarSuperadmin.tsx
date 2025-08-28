@@ -35,8 +35,10 @@ export default function Sidebar() {
   const router = useRouter()
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    router.push('/')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      router.push('/')
+    }
   }
 
   return (
@@ -68,6 +70,7 @@ export default function Sidebar() {
 
       <div className="p-4 border-t">
         <button
+          type="button"
           onClick={handleLogout}
           className="flex items-center gap-3 p-2 w-full text-left rounded text-red-600 hover:bg-red-100 transition-colors text-sm"
         >

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
+import axios from "axios";
 
 interface Slider {
   id: number;
@@ -18,26 +18,43 @@ export default function SlidersPage() {
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [newImage, setNewImage] = useState<File | null>(null);
 
+  // ✅ Ganti ke port backend NestJS
+  const API_URL = "http://localhost:3001/sliders";
+
   useEffect(() => {
-    // TODO: Replace with fetch to backend API
-    setSliders([
-      { id: 1, slider_img: "/demo1.jpg", is_active: true },
-      { id: 2, slider_img: "/demo2.jpg", is_active: false },
-    ]);
+    fetchSliders();
   }, []);
 
-  const handleUpload = () => {
-    if (!newImage) return;
-    // TODO: Upload image to server (API call)
-    console.log("Uploading:", newImage);
+  const fetchSliders = async () => {
+    try {
+      const res = await axios.get<Slider[]>(API_URL);
+      setSliders(res.data);
+    } catch (err) {
+      console.error("Gagal fetch sliders:", err);
+    }
   };
 
-  const handleToggle = (id: number) => {
-    const updated = sliders.map((s) =>
-      s.id === id ? { ...s, is_active: !s.is_active } : s
-    );
-    setSliders(updated);
-    // TODO: Sync with backend
+  const handleUpload = async () => {
+    if (!newImage) return;
+    const formData = new FormData();
+    formData.append("file", newImage);
+
+    await axios.post(API_URL, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setNewImage(null);
+    fetchSliders();
+  };
+
+  const handleToggle = async (id: number) => {
+    await axios.post(`${API_URL}/${id}/toggle`);
+    fetchSliders();
+  };
+
+  const handleDelete = async (id: number) => {
+    await axios.delete(`${API_URL}/${id}`);
+    fetchSliders();
   };
 
   return (
@@ -49,18 +66,27 @@ export default function SlidersPage() {
           <Card key={slider.id}>
             <CardContent className="p-2">
               <Image
-                src={slider.slider_img}
+                src={`http://localhost:3001${slider.slider_img}`} // ✅ backend port
                 alt="slider"
                 width={300}
                 height={200}
                 className="rounded w-full h-[200px] object-cover"
               />
               <div className="mt-2 flex justify-between items-center">
-                <span className="text-sm">Aktif</span>
-                <Switch
-                  checked={slider.is_active}
-                  onCheckedChange={() => handleToggle(slider.id)}
-                />
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Aktif</span>
+                  <Switch
+                    checked={slider.is_active}
+                    onCheckedChange={() => handleToggle(slider.id)}
+                  />
+                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(slider.id)}
+                >
+                  Hapus
+                </Button>
               </div>
             </CardContent>
           </Card>
