@@ -4,9 +4,9 @@ import {
   Post,
   Delete,
   Param,
+  Body,
   UploadedFile,
   UseInterceptors,
-  Body,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -28,7 +28,7 @@ export class PopularDestinationsController {
   @UseInterceptors(
     FileInterceptor('destination_img', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_req, _file, cb) => {
           const dir = join(process.cwd(), 'uploads', 'destinations');
           if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
           cb(null, dir);
@@ -44,17 +44,24 @@ export class PopularDestinationsController {
         }
         cb(null, true);
       },
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
     }),
   )
-  async create(@Body('title') title: string, @UploadedFile() file: Express.Multer.File) {
+  async create(
+    @Body('title') title: string,
+    @Body('maps_url') maps_url: string | undefined,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     if (!title) throw new BadRequestException('title wajib diisi');
     if (!file) throw new BadRequestException('destination_img wajib diupload');
 
-    // Simpan path relatif yang dilayani oleh ServeStatic
     const relativePath = '/uploads/destinations/' + file.filename;
 
-    return this.service.create(title, relativePath);
+    return this.service.create({
+      title,
+      destination_img: relativePath,
+      maps_url: maps_url || null, // bisa kosong
+    });
   }
 
   @Delete(':id')

@@ -11,11 +11,13 @@ export class PopularDestinationsService {
     });
   }
 
-  async create(title: string, filePath: string) {
+  // menerima title, destination_img, dan maps_url (nullable)
+  async create(data: { title: string; destination_img: string; maps_url?: string | null }) {
     return this.prisma.popularDestination.create({
       data: {
-        title,
-        destination_img: filePath,
+        title: data.title,
+        destination_img: data.destination_img,
+        maps_url: data.maps_url ?? null,
       },
     });
   }
