@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { RiMapPin2Fill, RiNotification3Line } from "react-icons/ri";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
+import axios from "axios";
 
 interface Slider {
   id: number;
@@ -30,13 +31,29 @@ export default function CustomerHomePage() {
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
 
+  // index slider aktif
+  const [current, setCurrent] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // state untuk preview fullscreen
+  const [preview, setPreview] = useState<string | null>(null);
+
   useEffect(() => {
     setCustomer({
       full_name: "Nadya Amalya",
       credit_amount: 0,
     });
 
-    setSliders([{ id: 1, slider_img: "/promo1.png", is_active: true }]);
+    const fetchSliders = async () => {
+      try {
+        const res = await axios.get<Slider[]>("http://localhost:3001/sliders");
+        const active = res.data.filter((s) => s.is_active);
+        setSliders(active);
+      } catch (err) {
+        console.error("Gagal fetch sliders:", err);
+      }
+    };
+    fetchSliders();
 
     setDestinations([
       {
@@ -53,6 +70,26 @@ export default function CustomerHomePage() {
       },
     ]);
   }, []);
+
+  // Auto slide setiap 4 detik
+  useEffect(() => {
+    if (sliders.length > 1) {
+      intervalRef.current = setInterval(() => {
+        setCurrent((prev) => (prev + 1) % sliders.length);
+      }, 4000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [sliders]);
+
+  const nextSlide = () => {
+    setCurrent((prev) => (prev + 1) % sliders.length);
+  };
+
+  const prevSlide = () => {
+    setCurrent((prev) => (prev - 1 + sliders.length) % sliders.length);
+  };
 
   const layanan = [
     {
@@ -93,7 +130,6 @@ export default function CustomerHomePage() {
     <div className="space-y-6">
       {/* Header Welcome */}
       <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6 shadow-md overflow-hidden">
-        {/* Gambar Background */}
         <Image
           src="/bgprf.png"
           alt="Background Header"
@@ -108,7 +144,6 @@ export default function CustomerHomePage() {
               {customer?.full_name ?? "Customer"}
             </h1>
           </div>
-          {/* Klik lonceng untuk ke halaman inbox */}
           <div
             className="w-10 h-10 bg-white bg-opacity-30 rounded-full flex items-center justify-center cursor-pointer"
             onClick={() => router.push("/customer/inbox")}
@@ -117,7 +152,6 @@ export default function CustomerHomePage() {
           </div>
         </div>
 
-        {/* Poin Box */}
         <div className="absolute left-6 right-6 top-28 z-10">
           <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
             <div className="text-gray-800 font-medium">Poin saya</div>
@@ -159,16 +193,59 @@ export default function CustomerHomePage() {
           </div>
         </div>
 
-        {/* Slider Full Gambar */}
+        {/* Slider Gambar dengan Animasi Geser */}
         <div className="space-y-2">
-          <div className="w-full h-40 sm:h-56 md:h-64 lg:h-72 relative rounded-xl overflow-hidden shadow-md">
-            <Image
-              src={sliders[0]?.slider_img || "/promo1.png"}
-              alt="Promo"
-              fill
-              className="object-cover"
-            />
-          </div>
+          {sliders.length > 0 ? (
+            <div className="relative w-full h-40 sm:h-56 md:h-64 lg:h-72 overflow-hidden rounded-xl shadow-md">
+              {/* Track berisi semua slide */}
+              <div
+                className="flex h-full w-full transition-transform duration-700 ease-in-out"
+                style={{ transform: `translateX(-${current * 100}%)` }}
+              >
+                {sliders.map((slide) => (
+                  <div
+                    key={slide.id}
+                    className="relative w-full flex-shrink-0 cursor-pointer"
+                    onClick={() =>
+                      setPreview(`http://localhost:3001${slide.slider_img}`)
+                    }
+                  >
+                    <Image
+                      src={`http://localhost:3001${slide.slider_img}`}
+                      alt="Promo"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              {sliders.length > 1 && (
+                <>
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="w-full h-40 sm:h-56 md:h-64 lg:h-72 relative rounded-xl overflow-hidden shadow-md">
+              <Image
+                src="/promo1.png"
+                alt="Default Promo"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
         </div>
 
         {/* Destinasi Populer */}
@@ -201,6 +278,24 @@ export default function CustomerHomePage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Preview Fullscreen */}
+      {preview && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center cursor-zoom-out"
+          onClick={() => setPreview(null)}
+        >
+          <div className="relative w-full h-full">
+            <Image
+              src={preview}
+              alt="Preview"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
