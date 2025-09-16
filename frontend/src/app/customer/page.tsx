@@ -17,7 +17,7 @@ interface Destination {
   id: number;
   title: string;
   destination_img: string;
-  maps_url: string;
+  maps_url: string | null;
 }
 
 interface Customer {
@@ -44,6 +44,7 @@ export default function CustomerHomePage() {
       credit_amount: 0,
     });
 
+    // Ambil data slider aktif dari backend
     const fetchSliders = async () => {
       try {
         const res = await axios.get<Slider[]>("http://localhost:3001/sliders");
@@ -53,22 +54,21 @@ export default function CustomerHomePage() {
         console.error("Gagal fetch sliders:", err);
       }
     };
-    fetchSliders();
 
-    setDestinations([
-      {
-        id: 1,
-        title: "Jakarta",
-        destination_img: "/jakarta.jpg",
-        maps_url: "https://maps.app.goo.gl/Pk6V8ydxcGJS7Brr6",
-      },
-      {
-        id: 2,
-        title: "Bandung",
-        destination_img: "/bandung.jpg",
-        maps_url: "https://maps.app.goo.gl/ZnPKQdyfF5ocM7DZ8",
-      },
-    ]);
+    // Ambil data destinasi populer dari endpoint publik
+    const fetchDestinations = async () => {
+      try {
+        const res = await axios.get<Destination[]>(
+          "http://localhost:3001/popular-destinations" // endpoint publik
+        );
+        setDestinations(res.data);
+      } catch (err) {
+        console.error("Gagal fetch destinasi populer:", err);
+      }
+    };
+
+    fetchSliders();
+    fetchDestinations();
   }, []);
 
   // Auto slide setiap 4 detik
@@ -193,11 +193,10 @@ export default function CustomerHomePage() {
           </div>
         </div>
 
-        {/* Slider Gambar dengan Animasi Geser */}
+        {/* Slider Gambar */}
         <div className="space-y-2">
           {sliders.length > 0 ? (
             <div className="relative w-full h-40 sm:h-56 md:h-64 lg:h-72 overflow-hidden rounded-xl shadow-md">
-              {/* Track berisi semua slide */}
               <div
                 className="flex h-full w-full transition-transform duration-700 ease-in-out"
                 style={{ transform: `translateX(-${current * 100}%)` }}
@@ -248,7 +247,7 @@ export default function CustomerHomePage() {
           )}
         </div>
 
-        {/* Destinasi Populer */}
+        {/* Destinasi Populer - dari endpoint publik */}
         <div className="space-y-2">
           <h2 className="text-base font-semibold">Tujuan Populer</h2>
           <p className="text-sm text-gray-500">
@@ -258,12 +257,12 @@ export default function CustomerHomePage() {
             {destinations.map((dest) => (
               <Card
                 key={dest.id}
-                onClick={() => window.open(dest.maps_url, "_blank")}
+                onClick={() => dest.maps_url && window.open(dest.maps_url, "_blank")}
                 className="overflow-hidden rounded-xl shadow-md transition-transform hover:scale-[1.02] cursor-pointer"
               >
                 <div className="w-full h-28 relative">
                   <Image
-                    src={dest.destination_img}
+                    src={`http://localhost:3001${dest.destination_img}`}
                     alt={dest.title}
                     fill
                     className="object-cover"

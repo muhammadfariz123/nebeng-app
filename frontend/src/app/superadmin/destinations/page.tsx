@@ -1,70 +1,78 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
+import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface PopularDestination {
-  id: number
-  title: string
-  destination_img: string // contoh: "/uploads/destinations/xxx.jpg"
+  id: number;
+  title: string;
+  destination_img: string;
+  maps_url: string | null;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
 
 export default function PopularDestinationsPage() {
-  const [destinations, setDestinations] = useState<PopularDestination[]>([])
-  const [newTitle, setNewTitle] = useState('')
-  const [newImage, setNewImage] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [destinations, setDestinations] = useState<PopularDestination[]>([]);
+  const [newTitle, setNewTitle] = useState('');
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [newMapsUrl, setNewMapsUrl] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const listUrl = useMemo(() => `${BACKEND_URL}/superadmin/popular-destinations`, [])
+  const listUrl = useMemo(
+    () => `${BACKEND_URL}/superadmin/popular-destinations`,
+    []
+  );
   const absoluteImg = (path: string) =>
-    path.startsWith('http') ? path : `${BACKEND_URL}${path}`
+    path.startsWith('http') ? path : `${BACKEND_URL}${path}`;
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(listUrl, { cache: 'no-store' })
-      const data = await res.json()
-      setDestinations(data)
-    }
-    load()
-  }, [listUrl])
+      const res = await fetch(listUrl, { cache: 'no-store' });
+      const data = await res.json();
+      setDestinations(data);
+    };
+    load();
+  }, [listUrl]);
 
   const handleUpload = async () => {
-    if (!newTitle || !newImage) return alert('Lengkapi data!')
-    setLoading(true)
+    if (!newTitle || !newImage) return alert('Lengkapi data!');
+    setLoading(true);
     try {
-      const formData = new FormData()
-      formData.append('title', newTitle)
-      formData.append('destination_img', newImage)
+      const formData = new FormData();
+      formData.append('title', newTitle);
+      if (newMapsUrl) formData.append('maps_url', newMapsUrl);
+      formData.append('destination_img', newImage);
 
-      const res = await fetch(listUrl, { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Gagal upload')
+      const res = await fetch(listUrl, { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Gagal upload');
 
-      const created = await res.json()
-      setDestinations((prev) => [created, ...prev])
-      setNewTitle('')
-      setNewImage(null)
+      const created = await res.json();
+      setDestinations((prev) => [created, ...prev]);
+      setNewTitle('');
+      setNewImage(null);
+      setNewMapsUrl('');
     } catch (e: any) {
-      alert(e.message || 'Upload gagal')
+      alert(e.message || 'Upload gagal');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Yakin hapus?')) return
-    const res = await fetch(`${listUrl}/${id}`, { method: 'DELETE' })
+    if (!confirm('Yakin hapus?')) return;
+    const res = await fetch(`${listUrl}/${id}`, { method: 'DELETE' });
     if (res.ok) {
-      setDestinations((prev) => prev.filter((d) => d.id !== id))
+      setDestinations((prev) => prev.filter((d) => d.id !== id));
     } else {
-      alert('Gagal hapus')
+      alert('Gagal hapus');
     }
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -80,8 +88,18 @@ export default function PopularDestinationsPage() {
               height={200}
               className="w-full h-[150px] object-cover"
             />
-            <CardContent className="p-4">
+            <CardContent className="p-4 space-y-1">
               <p className="text-center font-medium text-sm">{dest.title}</p>
+              {dest.maps_url && (
+                <a
+                  href={dest.maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-blue-600 underline text-center"
+                >
+                  Lihat di Maps
+                </a>
+              )}
               <Button
                 variant="destructive"
                 size="sm"
@@ -107,6 +125,14 @@ export default function PopularDestinationsPage() {
             />
           </div>
           <div className="flex-1">
+            <Label>Link Google Maps (opsional)</Label>
+            <Input
+              placeholder="https://maps.app.goo.gl/xxxx"
+              value={newMapsUrl}
+              onChange={(e) => setNewMapsUrl(e.target.value)}
+            />
+          </div>
+          <div className="flex-1">
             <Label>Upload Gambar</Label>
             <Input
               type="file"
@@ -122,5 +148,5 @@ export default function PopularDestinationsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
