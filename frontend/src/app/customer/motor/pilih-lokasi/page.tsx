@@ -2,14 +2,17 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
-const dummyLocations = [
-  'YOGYAKARTA POS 1',
-  'YOGYAKARTA POS 2',
-  'SOLO POS 1',
-  'SEMARANG POS 1',
-  'JAKARTA POS 5',
-]
+interface Terminal {
+  id: number
+  name: string
+  full_address: string
+  province_name?: string
+  regency_name?: string
+  district_name?: string
+}
 
 export default function PilihLokasiPage() {
   const router = useRouter()
@@ -19,8 +22,40 @@ export default function PilihLokasiPage() {
   const dari = searchParams.get('dari') || ''
   const ke = searchParams.get('ke') || ''
 
+  const [locations, setLocations] = useState<Terminal[]>([])
+  const [filtered, setFiltered] = useState<Terminal[]>([])
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  // Fetch lokasi dari backend
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await axios.get<Terminal[]>('http://localhost:3001/superadmin/terminals')
+        setLocations(res.data)
+        setFiltered(res.data)
+      } catch (err) {
+        console.error('Gagal mengambil data lokasi', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLocations()
+  }, [])
+
+  // Filter saat user mengetik
+  useEffect(() => {
+    const lower = search.toLowerCase()
+    setFiltered(
+      locations.filter(
+        (loc) =>
+          loc.name.toLowerCase().includes(lower) ||
+          (loc.full_address || '').toLowerCase().includes(lower)
+      )
+    )
+  }, [search, locations])
+
   const handleSelect = (lokasi: string) => {
-    // Kembali ke halaman utama dengan query parameter baru
     const newParams =
       tipe === 'dari'
         ? `?dari=${encodeURIComponent(lokasi)}&ke=${encodeURIComponent(ke)}`
@@ -44,21 +79,28 @@ export default function PilihLokasiPage() {
             type="text"
             placeholder="Cari lokasi anda"
             className="bg-transparent outline-none text-sm flex-1"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-        {/* List lokasi */}
+      {/* List lokasi */}
       <div className="mt-4 px-4">
-        {dummyLocations.map((lokasi, index) => (
+        {loading && <p className="text-gray-500">Memuat lokasi...</p>}
+        {!loading && filtered.length === 0 && (
+          <p className="text-gray-500">Tidak ada lokasi ditemukan</p>
+        )}
+        {filtered.map((loc) => (
           <div
-            key={index}
-            onClick={() => handleSelect(lokasi)}
+            key={loc.id}
+            onClick={() => handleSelect(loc.name)}
             className="border-b py-4 cursor-pointer hover:bg-gray-100 transition"
           >
-            <h2 className="font-semibold text-sm">{lokasi}</h2>
+            <h2 className="font-semibold text-sm">{loc.name}</h2>
             <p className="text-xs text-gray-500 leading-tight">
-              PATEHAN, KECAMATAN KRATON, KOTA YOGYAKARTA, DAERAH ISTIMEWA YOGYAKARTA 55133
+              {loc.full_address ||
+                `${loc.district_name || ''}, ${loc.regency_name || ''}, ${loc.province_name || ''}`}
             </p>
           </div>
         ))}
