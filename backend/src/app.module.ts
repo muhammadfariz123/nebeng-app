@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config'; // ✅ ditambahkan
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -8,6 +9,7 @@ import { GoodsPricingModule } from './superadmin/goods-pricing.module';
 import { SlidersModule } from './sliders/sliders.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from './superadmin/notifications/notifications.module';
+import { CustomerModule } from './customer/customer.module';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -15,6 +17,10 @@ import { PopularDestinationsModule } from './superadmin/popular-destinations/pop
 
 @Module({
   imports: [
+    // ✅ ConfigModule agar NestJS bisa membaca .env secara global
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // ✅ pastikan selalu dari root project
       serveRoot: '/uploads',
@@ -27,6 +33,7 @@ import { PopularDestinationsModule } from './superadmin/popular-destinations/pop
     PrismaModule,
     PopularDestinationsModule,
     NotificationsModule,
+    CustomerModule
   ],
   controllers: [AppController],
   providers: [AppService],
