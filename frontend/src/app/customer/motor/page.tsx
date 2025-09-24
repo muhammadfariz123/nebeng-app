@@ -23,11 +23,25 @@ export default function MotorSearchPage() {
     return today;
   });
 
+  // ✅ state untuk nama penumpang
+  const [username, setUsername] = useState<string>("");
+
   useEffect(() => {
+    // ambil data user dari localStorage
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        setUsername(parsed.username || "");
+      } catch (err) {
+        console.error("Gagal parsing user dari localStorage", err);
+      }
+    }
+
+    // ambil query string
     const dari = searchParams.get("dari");
     const ke = searchParams.get("ke");
     const tgl = searchParams.get("tanggal");
-
     if (dari) setLokasiDari(dari);
     if (ke) setLokasiKe(ke);
     if (tgl) setTanggal(tgl);
@@ -139,12 +153,12 @@ export default function MotorSearchPage() {
             </p>
           </div>
 
-          {/* Nama Penumpang */}
+          {/* ✅ Nama Penumpang */}
           <div className="space-y-1">
             <label className="text-xs text-gray-500">Nama penumpang</label>
             <div className="flex items-center gap-2 p-3 border rounded-lg text-sm text-gray-700">
               <User2 className="text-blue-600 w-5 h-5" />
-              <span>Nadya Amalya</span>
+              <span>{username || "Memuat..."}</span>
             </div>
           </div>
 

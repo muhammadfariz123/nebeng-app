@@ -12,6 +12,7 @@ type UserResponse = {
     username: string
     user_type: 'Superadmin' | 'Admin' | 'Finance' | 'Customer' | 'Driver'
   }
+  token: string            // ✅ tambahkan token
   message: string
 }
 
@@ -32,26 +33,19 @@ export default function LoginPage() {
         password,
       })
 
-      const { user } = res.data
+      const { user, token } = res.data
+      // ✅ simpan user dan token ke localStorage
+      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('token', token)
 
+      // redirect sesuai role user
       switch (user.user_type) {
-        case 'Superadmin':
-          router.push('/superadmin')
-          break
-        case 'Admin':
-          router.push('/admin')
-          break
-        case 'Finance':
-          router.push('/finance')
-          break
-        case 'Customer':
-          router.push('/customer')
-          break
-        case 'Driver':
-          router.push('/driver')
-          break
-        default:
-          router.push('/')
+        case 'Superadmin': router.push('/superadmin'); break
+        case 'Admin':      router.push('/admin'); break
+        case 'Finance':    router.push('/finance'); break
+        case 'Customer':   router.push('/customer'); break
+        case 'Driver':     router.push('/driver'); break
+        default:           router.push('/')
       }
     } catch (error) {
       console.error('Login gagal:', error)
