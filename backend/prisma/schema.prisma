@@ -31,7 +31,6 @@ enum public_terminal_subtypes {
   PELABUHAN      @map("Pelabuhan")
 }
 
-// Sudah ada
 enum vehicle_types {
   Car
   Motorbike
@@ -39,7 +38,6 @@ enum vehicle_types {
   Train
 }
 
-// ✅ Tambahan untuk Goods Pricing
 enum transport_types {
   Sendiri
   Umum
@@ -58,9 +56,14 @@ model User {
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
 
+  // Relasi
   passengerTransactions PassengerTransaction[]
   goodsTransactions     GoodsTransaction[]
   Notification          Notification[]
+
+  // ✅ Relasi ke Tebengan dan Booking
+  tebengan         Tebengan[] @relation("UserTebengan")
+  customerBookings Booking[]  @relation("CustomerBooking")
 }
 
 model Terminal {
@@ -77,13 +80,10 @@ model Terminal {
   created_at              DateTime                  @default(now())
   updated_at              DateTime                  @updatedAt
 
-  // Relasi balik PassengerPricing (sudah ada)
-  departure_pricings PassengerPricing[] @relation("DeparturePricing")
-  arrival_pricings   PassengerPricing[] @relation("ArrivalPricing")
-
-  // ✅ Relasi balik GoodsPricing (TAMBAHAN)
-  goods_departure_pricings GoodsPricing[] @relation("GoodsDeparturePricing")
-  goods_arrival_pricings   GoodsPricing[] @relation("GoodsArrivalPricing")
+  departure_pricings       PassengerPricing[] @relation("DeparturePricing")
+  arrival_pricings         PassengerPricing[] @relation("ArrivalPricing")
+  goods_departure_pricings GoodsPricing[]     @relation("GoodsDeparturePricing")
+  goods_arrival_pricings   GoodsPricing[]     @relation("GoodsArrivalPricing")
 }
 
 model PassengerTransaction {
@@ -92,9 +92,8 @@ model PassengerTransaction {
   transaction_date DateTime @default(now())
   total_amount     Int
   payment_status   String
-
-  customer_id Int
-  customer    User @relation(fields: [customer_id], references: [id])
+  customer_id      Int
+  customer         User     @relation(fields: [customer_id], references: [id])
 }
 
 model GoodsTransaction {
@@ -103,9 +102,8 @@ model GoodsTransaction {
   transaction_date DateTime @default(now())
   total_amount     Int
   payment_status   String
-
-  customer_id Int
-  customer    User @relation(fields: [customer_id], references: [id])
+  customer_id      Int
+  customer         User     @relation(fields: [customer_id], references: [id])
 }
 
 model DriverCommission {
@@ -113,23 +111,18 @@ model DriverCommission {
   income Int
 }
 
-//
-// Lokasi
-//
 model Province {
-  id   Int    @id @default(autoincrement())
-  name String
-
+  id        Int       @id @default(autoincrement())
+  name      String
   regencies Regency[]
 }
 
 model Regency {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
   province_id Int
-  province    Province @relation(fields: [province_id], references: [id])
-
-  districts District[]
+  province    Province   @relation(fields: [province_id], references: [id])
+  districts   District[]
 }
 
 model District {
@@ -139,9 +132,6 @@ model District {
   regency    Regency @relation(fields: [regency_id], references: [id])
 }
 
-//
-// PassengerPricing (sudah ada)
-//
 model PassengerPricing {
   id                    Int           @id @default(autoincrement())
   vehicle_type          vehicle_types
@@ -151,14 +141,10 @@ model PassengerPricing {
   commission_percentage Float
   created_at            DateTime      @default(now())
   updated_at            DateTime      @updatedAt
-
-  departure_terminal Terminal @relation("DeparturePricing", fields: [departure_terminal_id], references: [id])
-  arrival_terminal   Terminal @relation("ArrivalPricing", fields: [arrival_terminal_id], references: [id])
+  departure_terminal    Terminal      @relation("DeparturePricing", fields: [departure_terminal_id], references: [id])
+  arrival_terminal      Terminal      @relation("ArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
 
-//
-// ✅ GoodsPricing (BARU)
-//
 model GoodsPricing {
   id                    Int             @id @default(autoincrement())
   transport_type        transport_types
@@ -168,10 +154,8 @@ model GoodsPricing {
   commission_percentage Float
   created_at            DateTime        @default(now())
   updated_at            DateTime        @updatedAt
-
-  // Relasi ke Terminal
-  departure_terminal Terminal @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
-  arrival_terminal   Terminal @relation("GoodsArrivalPricing", fields: [arrival_terminal_id], references: [id])
+  departure_terminal    Terminal        @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
+  arrival_terminal      Terminal        @relation("GoodsArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
 
 model Slider {
@@ -186,11 +170,10 @@ model PopularDestination {
   id              Int      @id @default(autoincrement())
   title           String
   destination_img String
-  maps_url        String?   //  link lokasi Google Maps
+  maps_url        String?
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 }
-
 
 model Notification {
   id         Int      @id @default(autoincrement())
@@ -200,4 +183,38 @@ model Notification {
   is_read    Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+//
+// ✅ Relasi Tebengan dan Booking
+//
+model Tebengan {
+  id         Int      @id @default(autoincrement())
+  asal       String
+  tujuan     String
+  waktu      DateTime
+  harga      Float
+  type       String
+  driverId   Int
+  driverName String
+  createdAt  DateTime @default(now())
+
+  // ✅ Relasi balik ke User (driver)
+  driver User @relation("UserTebengan", fields: [driverId], references: [id])
+
+  // ✅ Relasi ke Booking
+  bookings Booking[] @relation("TebenganBooking")
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  tebenganId Int
+  customerId Int
+  createdAt  DateTime @default(now())
+
+  // ✅ Relasi balik ke Tebengan
+  tebengan Tebengan @relation("TebenganBooking", fields: [tebenganId], references: [id])
+
+  // ✅ Relasi balik ke User (Customer)
+  customer User @relation("CustomerBooking", fields: [customerId], references: [id])
 }

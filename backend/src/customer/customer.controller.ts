@@ -1,24 +1,17 @@
 // src/customer/customer.controller.ts
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CustomerService } from './customer.service';
 
 @Controller('customer')
 @UseGuards(JwtAuthGuard)
 export class CustomerController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly customerService: CustomerService) {}
 
+  // ✅ Ambil profil customer berdasarkan user login
   @Get('profile')
-  async getProfile(@Req() req) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: req.user.sub },
-      select: { id: true, username: true, email: true,  },
-    });
-
-    if (!user || req.user.user_type !== 'Customer') {
-      return { message: 'Bukan customer', user: null };
-    }
-
-    return user;
+  async getProfile(@Req() req: any) {
+    const userId = req.user.sub; // Dapat dari payload JWT
+    return this.customerService.findById(userId);
   }
 }

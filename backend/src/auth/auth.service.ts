@@ -1,25 +1,27 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
-import { JwtService } from '@nestjs/jwt'; // ✅ ditambahkan
+import { JwtService } from '@nestjs/jwt';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export class AuthService {
-  constructor(private jwt: JwtService) {} // ✅ ditambahkan
+  constructor(private readonly jwtService: JwtService) {}
 
+  // 🔹 Validasi user saat login
   async validateUser(email: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return null;
+    if (!user) throw new UnauthorizedException('Email tidak ditemukan');
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return null;
+    if (!valid) throw new UnauthorizedException('Password salah');
 
     return user;
   }
 
+  // 🔹 Registrasi user baru
   async registerUser(data: RegisterDto) {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
@@ -51,8 +53,34 @@ export class AuthService {
     };
   }
 
-  // ✅ method baru untuk generate JWT
+  // 🔹 Login dan buat token JWT
+  async login(email: string, password: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new UnauthorizedException('Email tidak ditemukan');
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) throw new UnauthorizedException('Password salah');
+
+    // ✅ Buat payload token (pakai sub, bukan id)
+    const payload = { sub: user.id, username: user.username, role: user.user_type };
+
+    // ✅ Buat token JWT
+    const token = this.jwtService.sign(payload);
+
+    return {
+      message: 'Login berhasil',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        user_type: user.user_type,
+      },
+      token, // kirim token ke frontend
+    };
+  }
+
+  // 🔹 Method tambahan kalau butuh generate token manual
   signToken(payload: { sub: number; email: string; user_type: string }) {
-    return this.jwt.sign(payload);
+    return this.jwtService.sign(payload);
   }
 }
