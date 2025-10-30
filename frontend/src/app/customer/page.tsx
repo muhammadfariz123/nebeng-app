@@ -6,6 +6,16 @@ import { RiMapPin2Fill, RiNotification3Line } from "react-icons/ri";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import axios from "axios";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
 
 interface Slider {
   id: number;
@@ -29,56 +39,42 @@ interface Customer {
 export default function CustomerHomePage() {
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [loading, setLoading] = useState(true);
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [current, setCurrent] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [showInvalidDialog, setShowInvalidDialog] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // ✅ Verifikasi token dan ambil profil
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      // jika belum login arahkan ke /login
-      router.push("/login");
+      setShowInvalidDialog(true);
+      setLoading(false);
       return;
     }
 
-    // ✅ Ambil profil customer
-    const fetchCustomer = async () => {
+    const fetchData = async () => {
       try {
         const res = await axios.get<Customer>("http://localhost:3001/customer/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCustomer(res.data);
       } catch (err) {
-        console.error("Gagal fetch customer profile:", err);
+        console.error("Token tidak valid:", err);
+        localStorage.removeItem("token");
+        setShowInvalidDialog(true);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchSliders = async () => {
-      try {
-        const res = await axios.get<Slider[]>("http://localhost:3001/sliders");
-        setSliders(res.data.filter((s) => s.is_active));
-      } catch (err) {
-        console.error("Gagal fetch sliders:", err);
-      }
-    };
+    fetchData();
+  }, []);
 
-    const fetchDestinations = async () => {
-      try {
-        const res = await axios.get<Destination[]>("http://localhost:3001/popular-destinations");
-        setDestinations(res.data);
-      } catch (err) {
-        console.error("Gagal fetch destinasi populer:", err);
-      }
-    };
-
-    fetchCustomer();
-    fetchSliders();
-    fetchDestinations();
-  }, [router]);
-
-  // Auto slide
+  // 🔁 Auto slide
   useEffect(() => {
     if (sliders.length > 1) {
       intervalRef.current = setInterval(() => {
@@ -90,9 +86,85 @@ export default function CustomerHomePage() {
     };
   }, [sliders]);
 
-  const nextSlide = () => setCurrent((p) => (p + 1) % sliders.length);
-  const prevSlide = () => setCurrent((p) => (p - 1 + sliders.length) % sliders.length);
+  // 🧭 Fetch data setelah login
+  useEffect(() => {
+    if (!customer) return;
 
+    const fetchSliders = async () => {
+      try {
+        const res = await axios.get<Slider[]>("http://localhost:3001/sliders");
+        setSliders(res.data.filter((s) => s.is_active));
+      } catch (err) {
+        console.error("Gagal memuat slider:", err);
+      }
+    };
+
+    const fetchDestinations = async () => {
+      try {
+        const res = await axios.get<Destination[]>("http://localhost:3001/popular-destinations");
+        setDestinations(res.data);
+      } catch (err) {
+        console.error("Gagal memuat destinasi:", err);
+      }
+    };
+
+    fetchSliders();
+    fetchDestinations();
+  }, [customer]);
+
+  // ⏱️ Timer otomatis arahkan ke login jika token invalid
+  useEffect(() => {
+    if (showInvalidDialog) {
+      const timer = setTimeout(() => {
+        router.push("/login");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showInvalidDialog, router]);
+
+  // 🌈 Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-600">
+        <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+        <div className="w-40 h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-full w-full bg-blue-400 animate-pulse" />
+        </div>
+        <p className="text-sm animate-pulse">Memverifikasi akun Anda...</p>
+      </div>
+    );
+  }
+
+  // 🚨 Dialog token invalid
+  if (showInvalidDialog) {
+    return (
+      <AlertDialog open={true}>
+        <AlertDialogContent className="text-center">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold text-red-600">
+              Sesi Anda Berakhir 😢
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
+              Anda belum login atau sesi sudah habis. Anda akan diarahkan ke halaman login dalam 3 detik.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center py-3">
+            <Loader2 className="h-6 w-6 text-blue-600 animate-spin" />
+          </div>
+          <AlertDialogFooter className="flex justify-center">
+            <AlertDialogAction
+              onClick={() => router.push("/login")}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Login Sekarang
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
+
+  // ✅ Data layanan
   const layanan = [
     { title: "Motor", img: "/icons/motor.svg", to: "/customer/motor", bg: "bg-green-100", imgClass: "w-8 h-12" },
     { title: "Mobil", img: "/icons/mobil.svg", to: "/customer/mobil", bg: "bg-blue-100", imgClass: "w-12 h-12" },
@@ -111,13 +183,10 @@ export default function CustomerHomePage() {
       {/* Header */}
       <div className="relative h-48 bg-gradient-to-b from-blue-700 to-blue-500 rounded-b-3xl text-white px-6 pt-6 shadow-md overflow-hidden">
         <Image src="/bgprf.png" alt="Background Header" fill className="object-cover opacity-20" />
-
         <div className="relative z-10 flex justify-between items-start">
           <div>
-            <p className="text-sm">Selamat Siang,</p>
-            <h1 className="text-lg font-bold">
-              {customer?.username ?? "Customer"}
-            </h1>
+            <p className="text-sm">Selamat Datang,</p>
+            <h1 className="text-lg font-bold">{customer?.username}</h1>
           </div>
           <div
             className="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer"
@@ -130,13 +199,12 @@ export default function CustomerHomePage() {
         <div className="absolute left-6 right-6 top-28 z-10">
           <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
             <div className="text-gray-800 font-medium">Poin saya</div>
-            <div className="text-red-500 font-bold text-xl">
-              {customer?.credit_amount ?? 0}
-            </div>
+            <div className="text-red-500 font-bold text-xl">{customer?.credit_amount ?? 0}</div>
           </div>
         </div>
       </div>
 
+      {/* Body */}
       <div className="px-6 pt-20 space-y-6 pb-20">
         {/* Layanan */}
         <div className="text-center">
@@ -178,22 +246,6 @@ export default function CustomerHomePage() {
                   </div>
                 ))}
               </div>
-              {sliders.length > 1 && (
-                <>
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
-                  >
-                    ›
-                  </button>
-                </>
-              )}
             </div>
           ) : (
             <div className="w-full h-40 sm:h-56 md:h-64 lg:h-72 relative rounded-xl overflow-hidden shadow-md">
