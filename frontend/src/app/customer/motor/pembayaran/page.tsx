@@ -19,19 +19,20 @@ interface Tebengan {
   waktu: string
   harga: number
   type: string
+  driverId: number
+  driverName: string
 }
 
 export default function PembayaranMotorPage() {
   const router = useRouter()
   const params = useSearchParams()
-  const id = params.get('id') // Ambil ID tebengan dari URL
+  const id = params.get('id')
 
   const [showDetail, setShowDetail] = useState(true)
-  const [penumpang, setPenumpang] = useState<User | null>(null) // Data penumpang
-  const [data, setData] = useState<Tebengan | null>(null) // Data tebengan
+  const [penumpang, setPenumpang] = useState<User | null>(null)
+  const [data, setData] = useState<Tebengan | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // ✅ Ambil data penumpang dari localStorage (bukan token)
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
@@ -44,10 +45,8 @@ export default function PembayaranMotorPage() {
     }
   }, [])
 
-  // ✅ Ambil data tebengan sesuai ID
   useEffect(() => {
     if (!id) return
-
     const fetchDetail = async () => {
       try {
         setLoading(true)
@@ -59,22 +58,24 @@ export default function PembayaranMotorPage() {
         setLoading(false)
       }
     }
-
     fetchDetail()
   }, [id])
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Memuat...</div>
   if (!data) return <div className="min-h-screen flex items-center justify-center text-red-500">Data tidak ditemukan.</div>
 
-  // Format waktu
   const waktu = new Date(data.waktu)
   const tanggal = waktu.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
   const jamBerangkat = waktu.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
   const jamTiba = new Date(waktu.getTime() + 90 * 60000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 
+  const handleNext = () => {
+    if (!penumpang || !data) return alert("Data belum lengkap.")
+    router.push(`/customer/motor/konfirmasi-pembayaran?id=${data.id}&customerId=${penumpang.id}`)
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Header */}
       <div
         className="sticky top-0 z-20 px-4 pt-10 pb-4 relative flex items-center justify-center"
         style={{
@@ -89,10 +90,7 @@ export default function PembayaranMotorPage() {
         <h1 className="text-base font-semibold text-white">Pembayaran</h1>
       </div>
 
-      {/* Konten */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-
-        {/* Ringkasan Perjalanan */}
         <div className="bg-white border rounded-2xl shadow-md overflow-hidden">
           <button
             onClick={() => setShowDetail(!showDetail)}
@@ -115,10 +113,8 @@ export default function PembayaranMotorPage() {
             </div>
           </button>
 
-          {/* Detail jika Expand */}
           {showDetail && (
             <div className="px-4 pb-4 space-y-4">
-              {/* Data Penumpang */}
               <div className="border rounded-lg p-3 text-sm bg-white">
                 <p className="font-medium text-gray-800">{penumpang?.username || 'Penumpang'}</p>
                 <p className="text-xs text-gray-500">{penumpang?.email || '-'}</p>
@@ -128,7 +124,6 @@ export default function PembayaranMotorPage() {
                 </div>
               </div>
 
-              {/* Total Harga */}
               <div className="flex justify-between text-sm border-t pt-2">
                 <p className="text-gray-600">Total</p>
                 <p className="font-bold text-gray-900">Rp {data.harga.toLocaleString('id-ID')}</p>
@@ -137,7 +132,6 @@ export default function PembayaranMotorPage() {
           )}
         </div>
 
-        {/* Rincian Harga */}
         <div>
           <h3 className="text-sm font-semibold">Rincian Harga</h3>
           <p className="text-xs text-gray-500">1 Penumpang</p>
@@ -148,7 +142,6 @@ export default function PembayaranMotorPage() {
           </div>
         </div>
 
-        {/* Checkbox persetujuan */}
         <div className="flex items-start gap-2 text-sm">
           <input type="checkbox" id="agree" className="mt-1" />
           <label htmlFor="agree" className="text-gray-600">
@@ -157,14 +150,13 @@ export default function PembayaranMotorPage() {
         </div>
       </div>
 
-      {/* Tombol Bayar */}
       <div className="border-t bg-white p-4">
         <button
           type="button"
-          onClick={() => router.push(`/customer/motor/konfirmasi?id=${id}`)}
+          onClick={handleNext}
           className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl"
         >
-          Bayar
+          Pilih Metode Pembayaran
         </button>
       </div>
     </div>
