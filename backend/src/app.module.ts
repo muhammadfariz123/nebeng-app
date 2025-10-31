@@ -15,6 +15,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PopularDestinationsModule } from './superadmin/popular-destinations/popular-destinations.module';
 import { DriverModule } from './driver/driver.module';
+import { CheckoutModule } from './checkout/checkout.module';
+
 @Module({
   imports: [
     // ✅ ConfigModule agar NestJS bisa membaca .env secara global
@@ -36,6 +38,7 @@ import { DriverModule } from './driver/driver.module';
     CustomerModule,
     TebenganModule,
     DriverModule,
+    CheckoutModule,
   ],
   controllers: [AppController],
   providers: [AppService],

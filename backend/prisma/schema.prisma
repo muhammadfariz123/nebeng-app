@@ -8,9 +8,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-//
-// ENUMS
-//
 enum user_types {
   Superadmin
   Admin
@@ -43,27 +40,23 @@ enum transport_types {
   Umum
 }
 
-//
-// MODELS
-//
 model User {
-  id         Int        @id @default(autoincrement())
-  username   String     @unique
-  email      String     @unique
-  password   String
-  user_type  user_types
-  banned     Boolean    @default(false)
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  id          Int        @id @default(autoincrement())
+  username    String     @unique
+  email       String     @unique
+  password    String
+  user_type   user_types
+  banned      Boolean    @default(false)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 
-  // Relasi
-  passengerTransactions PassengerTransaction[]
-  goodsTransactions     GoodsTransaction[]
-  Notification          Notification[]
-
-  // ✅ Relasi ke Tebengan dan Booking
-  tebengan         Tebengan[] @relation("UserTebengan")
-  customerBookings Booking[]  @relation("CustomerBooking")
+  // 🔹 Relasi baru & diperbarui
+  bookings    Booking[]              @relation("CustomerBooking")
+  payments    Payment[]
+  Transactions PassengerTransaction[]
+  goodsTransactions GoodsTransaction[]
+  Notification Notification[]
+  tebengan    Tebengan[]             @relation("UserTebengan")
 }
 
 model Terminal {
@@ -87,13 +80,16 @@ model Terminal {
 }
 
 model PassengerTransaction {
-  id               Int      @id @default(autoincrement())
-  created_at       DateTime @default(now())
-  transaction_date DateTime @default(now())
+  id               Int       @id @default(autoincrement())
+  customer_id      Int
   total_amount     Int
   payment_status   String
-  customer_id      Int
-  customer         User     @relation(fields: [customer_id], references: [id])
+  created_at       DateTime  @default(now())
+  transaction_date DateTime  @default(now())
+
+  // 🔹 Relasi
+  customer         User      @relation(fields: [customer_id], references: [id])
+  payments         Payment[]
 }
 
 model GoodsTransaction {
@@ -132,6 +128,24 @@ model District {
   regency    Regency @relation(fields: [regency_id], references: [id])
 }
 
+model Payment {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  transactionId   Int?
+  tebenganId      Int?
+  bank_name       String
+  total_amount    Int
+  payment_status  String     @default("Pending")
+  payment_date    DateTime?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  // 🔹 Relasi
+  user            User                   @relation(fields: [userId], references: [id])
+  transaction     PassengerTransaction?  @relation(fields: [transactionId], references: [id])
+  tebengan        Tebengan?              @relation(fields: [tebenganId], references: [id])
+}
+
 model PassengerPricing {
   id                    Int           @id @default(autoincrement())
   vehicle_type          vehicle_types
@@ -141,6 +155,7 @@ model PassengerPricing {
   commission_percentage Float
   created_at            DateTime      @default(now())
   updated_at            DateTime      @updatedAt
+
   departure_terminal    Terminal      @relation("DeparturePricing", fields: [departure_terminal_id], references: [id])
   arrival_terminal      Terminal      @relation("ArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
@@ -154,6 +169,7 @@ model GoodsPricing {
   commission_percentage Float
   created_at            DateTime        @default(now())
   updated_at            DateTime        @updatedAt
+
   departure_terminal    Terminal        @relation("GoodsDeparturePricing", fields: [departure_terminal_id], references: [id])
   arrival_terminal      Terminal        @relation("GoodsArrivalPricing", fields: [arrival_terminal_id], references: [id])
 }
@@ -185,11 +201,8 @@ model Notification {
   updated_at DateTime @updatedAt
 }
 
-//
-// ✅ Relasi Tebengan dan Booking
-//
 model Tebengan {
-  id         Int      @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   asal       String
   tujuan     String
   waktu      DateTime
@@ -197,24 +210,23 @@ model Tebengan {
   type       String
   driverId   Int
   driverName String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime   @default(now())
 
-  // ✅ Relasi balik ke User (driver)
-  driver User @relation("UserTebengan", fields: [driverId], references: [id])
-
-  // ✅ Relasi ke Booking
+  // 🔹 Relasi
+  driver   User      @relation("UserTebengan", fields: [driverId], references: [id])
   bookings Booking[] @relation("TebenganBooking")
+  payments Payment[]
 }
 
 model Booking {
-  id         Int      @id @default(autoincrement())
-  tebenganId Int
-  customerId Int
-  createdAt  DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  tebenganId   Int
+  customerId   Int
+  status       String     @default("PENDING")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  // ✅ Relasi balik ke Tebengan
-  tebengan Tebengan @relation("TebenganBooking", fields: [tebenganId], references: [id])
-
-  // ✅ Relasi balik ke User (Customer)
-  customer User @relation("CustomerBooking", fields: [customerId], references: [id])
+  // 🔹 Relasi
+  tebengan     Tebengan   @relation("TebenganBooking", fields: [tebenganId], references: [id])
+  customer     User       @relation("CustomerBooking", fields: [customerId], references: [id])
 }
