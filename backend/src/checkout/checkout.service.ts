@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+// src/checkout/checkout.service.ts
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
 
@@ -40,11 +41,11 @@ export class CheckoutService {
     // 2️⃣ Buat data pembayaran baru
     const payment = await prisma.payment.create({
       data: {
-        userId,             // ✅ sesuai schema
-        tebenganId,         // ✅ sesuai schema
-        bank_name: bankName, // ✅ sesuai schema
-        total_amount: totalAmount, // ✅ sesuai schema
-        payment_status: 'Pending', // ✅ sesuai schema
+        userId,               // ✅ sesuai schema
+        tebenganId,           // ✅ sesuai schema
+        bank_name: bankName,  // ✅ sesuai schema
+        total_amount: totalAmount,
+        payment_status: 'Pending',
       },
     });
 
@@ -73,6 +74,17 @@ export class CheckoutService {
   }
 
   /**
+   * 🔹 Mengambil hanya status pembayaran (Pending | Success | Failed)
+   */
+  async getPaymentStatus(id: number) {
+    const payment = await prisma.payment.findUnique({ where: { id } });
+
+    if (!payment) throw new NotFoundException('Data pembayaran tidak ditemukan.');
+
+    return { status: payment.payment_status };
+  }
+
+  /**
    * Update status pembayaran (Pending | Success | Failed)
    */
   async updatePaymentStatus(
@@ -81,12 +93,50 @@ export class CheckoutService {
   ) {
     const payment = await prisma.payment.update({
       where: { id },
-      data: { payment_status: status }, // ✅ sesuai schema
+      data: { payment_status: status },
     });
 
     return {
       message: `Status pembayaran diperbarui menjadi ${status} ✅`,
       payment,
     };
+  }
+
+  /**
+   * 🔹 Mengambil riwayat checkout/pembayaran berdasarkan userId
+   *    (sudah disesuaikan dengan kolom tebengan & payment milikmu)
+   */
+  async getUserHistory(userId: number) {
+    const payments = await prisma.payment.findMany({
+      where: { userId },
+      include: {
+        tebengan: true,
+        transaction: true,
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    return payments.map((p) => ({
+      id: p.id,
+      date: new Date(p.created_at).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      route: p.tebengan
+        ? `${p.tebengan.asal} → ${p.tebengan.tujuan}`
+        : '-',
+      vehicle: p.tebengan?.driverName
+        ? `${p.tebengan.driverName} (${p.tebengan.type})`
+        : p.tebengan?.type || 'Tidak diketahui',
+      price: p.total_amount,
+      status:
+        p.payment_status === 'Pending'
+          ? 'Menunggu Pembayaran'
+          : p.payment_status === 'Success'
+          ? 'Selesai'
+          : 'Dibatalkan',
+      type: p.tebengan?.type || 'Barang',
+    }));
   }
 }
