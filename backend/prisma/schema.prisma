@@ -210,6 +210,7 @@ model Tebengan {
   type       String
   driverId   Int
   driverName String
+  jumlahPenumpang  Int? 
   createdAt  DateTime   @default(now())
 
   // 🔹 Relasi

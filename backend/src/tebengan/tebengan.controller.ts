@@ -16,7 +16,8 @@ export class TebenganController {
       harga: number;
       type: string;
       driverId: number;
-      driverName: string; // ✅ Tambahkan agar ikut dikirim
+      driverName: string; // ✅ Nama driver
+      jumlahPenumpang?: number; // ✅ Tambahan opsional untuk mobil
     },
   ) {
     return this.tebenganService.create(body);

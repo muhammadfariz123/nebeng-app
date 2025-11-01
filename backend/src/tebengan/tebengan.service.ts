@@ -15,7 +15,12 @@ export class TebenganService {
         harga: Number(data.harga),
         type: data.type,
         driverId: Number(data.driverId),
-        driverName: data.driverName, // ✅ Tambahkan agar nama driver tersimpan
+        driverName: data.driverName,
+        // ✅ hanya untuk mobil
+        jumlahPenumpang:
+          data.type === 'mobil'
+            ? Number(data.jumlahPenumpang) || 4 // default 4 kalau kosong
+            : null,
       },
       include: {
         driver: {
