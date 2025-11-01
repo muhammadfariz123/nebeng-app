@@ -28,24 +28,23 @@ export default function CreateTebengan() {
     tujuan: "",
     waktu: "",
     harga: "",
+    jumlahPenumpang: "", // ✅ nama disamakan dengan backend
   });
 
   const [driver, setDriver] = useState<Driver | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Ambil data driver berdasarkan token yang tersimpan
+  // 🔹 Ambil data driver dari token
   useEffect(() => {
     const fetchDriverProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-
         if (!token) {
           alert("Anda belum login!");
           router.push("/login");
           return;
         }
 
-        // ✅ Ambil data driver dari backend (autentikasi JWT)
         const res = await axios.get<Driver>("http://localhost:3001/driver/me", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +54,7 @@ export default function CreateTebengan() {
         setDriver(res.data);
       } catch (error) {
         console.error("Gagal memuat profil driver:", error);
-        alert("Sesi login sudah berakhir, silakan login ulang.");
+        alert("Sesi login berakhir, silakan login ulang.");
         router.push("/login");
       }
     };
@@ -63,10 +62,12 @@ export default function CreateTebengan() {
     fetchDriverProfile();
   }, [router]);
 
+  // 🔹 Handle input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🔹 Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -84,15 +85,26 @@ export default function CreateTebengan() {
         return;
       }
 
+      // Validasi tambahan untuk mobil
+      if (type === "mobil" && !form.jumlahPenumpang) {
+        alert("Masukkan jumlah penumpang untuk tebengan mobil!");
+        setLoading(false);
+        return;
+      }
+
+      // 🔹 Kirim data ke backend
       await axios.post(
         "http://localhost:3001/tebengan",
         {
-          ...form,
-          type,
-          driverId: driver.id,
-          driverName: driver.username, // ✅ Nama diambil dari data driver
+          asal: form.asal,
+          tujuan: form.tujuan,
           waktu: new Date(form.waktu),
           harga: Number(form.harga),
+          type,
+          driverId: driver.id,
+          driverName: driver.username,
+          jumlahPenumpang:
+            type === "mobil" ? Number(form.jumlahPenumpang) : null, // ✅ field sesuai backend
         },
         {
           headers: {
@@ -101,7 +113,9 @@ export default function CreateTebengan() {
         }
       );
 
-      alert(`Tebengan ${tebenganLabels[type]} berhasil dibuat oleh ${driver.username}! 🚀`);
+      alert(
+        `Tebengan ${tebenganLabels[type]} berhasil dibuat oleh ${driver.username}! 🚀`
+      );
       router.push("/driver");
     } catch (error) {
       console.error("Gagal membuat tebengan:", error);
@@ -124,6 +138,7 @@ export default function CreateTebengan() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Asal */}
         <div>
           <label className="block mb-1 font-semibold">Asal</label>
           <input
@@ -136,6 +151,7 @@ export default function CreateTebengan() {
           />
         </div>
 
+        {/* Tujuan */}
         <div>
           <label className="block mb-1 font-semibold">Tujuan</label>
           <input
@@ -148,6 +164,7 @@ export default function CreateTebengan() {
           />
         </div>
 
+        {/* Waktu */}
         <div>
           <label className="block mb-1 font-semibold">Waktu Berangkat</label>
           <input
@@ -160,6 +177,7 @@ export default function CreateTebengan() {
           />
         </div>
 
+        {/* Harga */}
         <div>
           <label className="block mb-1 font-semibold">Harga</label>
           <input
@@ -172,6 +190,26 @@ export default function CreateTebengan() {
           />
         </div>
 
+        {/* ✅ Hanya muncul jika type = mobil */}
+        {type === "mobil" && (
+          <div>
+            <label className="block mb-1 font-semibold">
+              Jumlah Penumpang
+            </label>
+            <input
+              type="number"
+              name="jumlahPenumpang"
+              value={form.jumlahPenumpang}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              placeholder="Masukkan jumlah penumpang (misal: 4)"
+              min={1}
+              required
+            />
+          </div>
+        )}
+
+        {/* Tombol Submit */}
         <button
           type="submit"
           disabled={loading}
