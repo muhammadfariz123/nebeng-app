@@ -47,6 +47,9 @@ export default function LoginPage() {
         case 'Driver':
           router.push('/driver');
           break;
+        case 'Finance':
+          router.push('/finance');
+          break;
         case 'Admin':
           router.push('/admin');
           break;

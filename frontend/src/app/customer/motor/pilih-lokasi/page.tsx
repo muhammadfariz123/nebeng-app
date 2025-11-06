@@ -42,7 +42,7 @@ export default function PilihLokasiPage() {
     const fetchTebengan = async () => {
       try {
         const res = await axios.get<Tebengan[]>('http://localhost:3001/tebengan')
-        const list = res.data || []
+        const list = (res.data || []).filter((t) => t.type === 'motor') // ✅ hanya tampilkan motor
 
         // ✅ Jika backend sudah mengembalikan driver langsung di field "driver"
         // maka kita cukup gunakan datanya tanpa request tambahan
@@ -107,7 +107,7 @@ export default function PilihLokasiPage() {
         >
           <ArrowLeft />
         </button>
-        <h1 className="ml-3 text-lg font-semibold text-gray-800">Pilih Tebengan</h1>
+        <h1 className="ml-3 text-lg font-semibold text-gray-800">Pilih Tebengan Motor</h1>
       </div>
 
       {/* Info Section */}
@@ -115,8 +115,9 @@ export default function PilihLokasiPage() {
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 mt-[2px]" />
           <p className="text-sm text-blue-700 leading-relaxed">
-            Berikut adalah daftar <strong>tebengan yang sedang tersedia dan siap berangkat</strong>.
-            Kamu dapat memilih berdasarkan rute, waktu keberangkatan, dan biaya yang sesuai.
+            Berikut adalah daftar <strong>tebengan motor</strong> yang sedang tersedia dan siap
+            berangkat. Kamu dapat memilih berdasarkan rute, waktu keberangkatan, dan biaya yang
+            sesuai.
             <br />
             Driver yang tertera merupakan driver yang <strong>terdaftar dan terverifikasi</strong> dalam sistem.
           </p>
@@ -190,7 +191,7 @@ export default function PilihLokasiPage() {
 
                   {/* Catatan */}
                   <p className="text-[11px] mt-2 text-gray-400 italic">
-                    Pastikan kamu datang tepat waktu di titik keberangkatan ya 🙂
+                    Pastikan kamu datang tepat waktu di titik keberangkatan ya 🙂 
                   </p>
                 </div>
               )
@@ -200,7 +201,7 @@ export default function PilihLokasiPage() {
 
         {!loading && tebenganList.length === 0 && !error && (
           <p className="text-center text-gray-500 text-sm">
-            Belum ada tebengan yang tersedia.
+            Belum ada tebengan motor yang tersedia.
           </p>
         )}
       </div>
