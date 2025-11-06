@@ -17,6 +17,7 @@ import { PopularDestinationsModule } from './superadmin/popular-destinations/pop
 import { DriverModule } from './driver/driver.module';
 import { CheckoutModule } from './checkout/checkout.module';
 
+import { PenumpangModule } from './penumpang/penumpang.module';
 @Module({
   imports: [
     // ✅ ConfigModule agar NestJS bisa membaca .env secara global
@@ -39,6 +40,7 @@ import { CheckoutModule } from './checkout/checkout.module';
     TebenganModule,
     DriverModule,
     CheckoutModule,
+    PenumpangModule
   ],
   controllers: [AppController],
   providers: [AppService],
